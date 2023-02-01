@@ -1,12 +1,12 @@
 package org.example.github;
 
+import org.example.controllers.github.User;
 import org.example.controllers.responses.RepositoryResponse;
 import org.example.github.auth.AuthBy;
 import org.example.github.dto.RepositoryDTO;
 import org.example.users.UserService;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.*;
+import org.kohsuke.github.GHOrganization.RepositoryRole;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -90,18 +90,46 @@ public class GithubUtils {
     public RepositoryResponse getRepository(String repositoryName) throws IOException {
 
         var response = RepositoryResponse.success();
-        response.setRepository(new RepositoryDTO(client.getRepository(repositoryName)));
+        GHRepository repository = client.getRepository(repositoryName);
+        response.setRepository(new RepositoryDTO(repository));
 
         return response;
 
     }
 
-    public RepositoryResponse addCollaboratorsToRepository(String repositoryName, Map<String, GHOrganization.Permission> collaborators) throws IOException {
+    public RepositoryResponse addCollaboratorsToRepository(String repositoryName, Map<RepositoryRole, List<GHUser>> collaborators) throws IOException {
+
+        var repository = client.getRepository(repositoryName);
+        collaborators.keySet().forEach(role -> {
+            try {
+                repository.addCollaborators(collaborators.get(role), role);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return RepositoryResponse.success();
+    }
+
+    public RepositoryResponse setupRepository(String repositoryName,
+                                              String renameTo,
+                                              String homeUrl,
+                                              String emailHook,
+                                              String defaultBranch,
+                                              String description,
+                                              Boolean isPrivate) throws IOException {
 
         var repository = client.getRepository(repositoryName);
 
-        for(var login: collaborators.keySet());
+        repository.set().defaultBranch(defaultBranch)
+                .set().homepage(homeUrl)
+                .set().private_(isPrivate)
+                .set().description(description);
+
+        repository.renameTo(renameTo);
+        if(emailHook != null)
+            repository.setEmailServiceHook(emailHook);
 
         return RepositoryResponse.success();
     }
 }
+

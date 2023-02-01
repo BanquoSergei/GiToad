@@ -38,8 +38,8 @@ public class AccountController {
                                       @RequestParam(required = false) String password,
                                       @RequestParam(name = "oauth_token", required = false) String oauthToken) throws InvalidInteractionKeyException {
 
-        if(!data.checkInteractionKey(interactionKey))
-            throw new InvalidInteractionKeyException();
+//        if(!data.checkInteractionKey(interactionKey))
+//            throw new InvalidInteractionKeyException();
 
         return userService.updateData(id, username, password, jwtToken, installationToken, oauthToken);
     }
@@ -49,8 +49,8 @@ public class AccountController {
                           @RequestParam("interaction_key") String interactionKey,
                           @RequestParam(value = "by", required = false) String by) throws InvalidInteractionKeyException, IOException {
 
-        if(!data.checkInteractionKey(interactionKey))
-            throw new InvalidInteractionKeyException();
+//        if(!data.checkInteractionKey(interactionKey))
+//            throw new InvalidInteractionKeyException();
 
         githubUtils.setup(id, by);
 

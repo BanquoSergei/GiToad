@@ -10,7 +10,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.List;
 
 @Configuration
 @EnableWebMvc
@@ -24,7 +23,7 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity security) throws Exception {
 
-        security.csrf().and().cors();
+        security.csrf().disable().cors().disable();
 
         return security.build();
     }

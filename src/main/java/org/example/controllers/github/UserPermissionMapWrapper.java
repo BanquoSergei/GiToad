@@ -1,24 +1,29 @@
 package org.example.controllers.github;
 
-import lombok.Data;
-import lombok.Getter;
-import org.kohsuke.github.GHOrganization.Permission;
+import org.kohsuke.github.GHOrganization;
+import org.kohsuke.github.GHOrganization.RepositoryRole;
+import org.kohsuke.github.GHUser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-@Getter
 public class UserPermissionMapWrapper {
 
-    private Map<String, Permission> tags = new HashMap<>();
+    private Map<GHOrganization.RepositoryRole, List<GHUser>> tags = new HashMap<>();
 
     public void setTags(Map<String, String> tags) {
 
-//        Map<Permission, List<String>> map = tags.values().stream().map(Permission::valueOf).collect(Collectors.groupingBy(p -> p, p -> tags.));
+        for(var login: tags.keySet()) {
 
-        for(var login: tags.keySet())
-            this.tags.put(login, Permission.valueOf(tags.get(login)));
+            var role = RepositoryRole.custom(tags.get(login));
+            this.tags.putIfAbsent(role, new ArrayList<>());
+            this.tags.get(role).add(new User(login));
+        }
+    }
+
+    public Map<RepositoryRole, List<GHUser>> getTags() {
+        return tags;
     }
 }

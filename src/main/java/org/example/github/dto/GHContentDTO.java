@@ -30,8 +30,9 @@ public class GHContentDTO {
         url = file.getUrl();
         isFile = file.isFile();
         size = file.getSize();
-        for(var f: file.listDirectoryContent())
-            files.add(new GHContentDTO(f));
+        if(file.isDirectory())
+            for(var f: file.listDirectoryContent())
+                files.add(new GHContentDTO(f));
     }
 
     public GHContentDTO(GHCommit.File file) {

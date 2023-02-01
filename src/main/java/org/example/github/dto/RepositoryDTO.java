@@ -1,8 +1,10 @@
 package org.example.github.dto;
 
 import lombok.Data;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
+import org.kohsuke.github.HttpException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,15 +37,23 @@ public class RepositoryDTO {
         countForks = repository.getForksCount();
         name = repository.getName();
         url = repository.getUrl().toString();
-        readme = new GHContentDTO(repository.getReadme());
+        try {
+            readme = new GHContentDTO(repository.getReadme());
+        } catch (GHFileNotFoundException e) {
 
+        }
         for (var commit: repository.listCommits())
             commits.add(new CommitDTO(commit));
 
         branches = repository.getBranches().values().stream().map(BranchDTO::new).toList();
-        traffic = new CloneTrafficDTO(repository.getCloneTraffic());
-        for (GHUser ghUser : repository.getCollaborators())
-            collaborators.add(new GHUserDTO(ghUser));
+
+        try {
+            traffic = new CloneTrafficDTO(repository.getCloneTraffic());
+            for (GHUser ghUser : repository.getCollaborators())
+                collaborators.add(new GHUserDTO(ghUser));
+        } catch (HttpException e) {
+
+        }
         languages = repository.listLanguages();
     }
 }

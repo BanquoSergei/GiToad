@@ -1,5 +1,6 @@
 package org.example.users;
 
+import jakarta.transaction.Transactional;
 import org.example.controllers.responses.Response;
 import org.example.crypt.Cryptographer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,9 @@ public class UserService {
     @Cacheable("loginByPassword")
     public UsernameAndPassword findUsernameAndPassword(String id) {
 
-        var result = repository.findUsernameAndPasswordById(id);
-        var username = new String(cryptographer.decrypt(result.get(0)));
-        var password = new String(cryptographer.decrypt(result.get(1)));
+        var user = repository.findById(id).orElseThrow();
+        var username = new String(cryptographer.decrypt(user.getUsername()));
+        var password = new String(cryptographer.decrypt(user.getPassword()));
 
         return new UsernameAndPassword(username, password);
     }

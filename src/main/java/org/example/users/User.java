@@ -12,23 +12,23 @@ public class User {
     @Column
     private String id;
 
-    @Lob
     @Column
+    @Lob
     private byte[] username;
 
-    @Lob
     @Column
+    @Lob
     private byte[] password;
 
-    @Lob
     @Column
+    @Lob
     private byte[] oauthToken;
 
-    @Lob
     @Column
+    @Lob
     private byte[] installationToken;
 
-    @Lob
     @Column
+    @Lob
     private byte[] jwtToken;
 }

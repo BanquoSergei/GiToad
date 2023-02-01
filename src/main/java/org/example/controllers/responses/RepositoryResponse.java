@@ -1,9 +1,11 @@
 package org.example.controllers.responses;
 
+import lombok.Getter;
 import org.example.github.dto.RepositoryDTO;
 
 import java.util.List;
 
+@Getter
 public class RepositoryResponse extends Response {
 
     private RepositoryDTO repository;
