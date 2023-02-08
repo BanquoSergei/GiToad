@@ -1,5 +1,6 @@
 package org.example.controllers.github;
 
+import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.Response;
 import org.example.data.SecurityData;
 import org.example.exceptions.InvalidInteractionKeyException;
@@ -15,19 +16,11 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("account")
+@RequiredArgsConstructor
 public class AccountController {
-
-    private final UserService userService;
     private final SecurityData data;
+    private final GithubUtils githubUtils;
 
-    @Autowired
-    private GithubUtils githubUtils;
-
-    @Autowired
-    public AccountController(UserService userService, SecurityData data) {
-        this.userService = userService;
-        this.data = data;
-    }
 
     @PostMapping("/update")
     public Response updateAccountData(@RequestParam String id,
@@ -41,7 +34,7 @@ public class AccountController {
 //        if(!data.checkInteractionKey(interactionKey))
 //            throw new InvalidInteractionKeyException();
 
-        return userService.updateData(id, username, password, jwtToken, installationToken, oauthToken);
+        return githubUtils.updateData(id, username, password, jwtToken, installationToken, oauthToken);
     }
 
     @PostMapping("/login")

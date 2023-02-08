@@ -1,87 +1,97 @@
 package org.example.github;
 
-import org.example.controllers.github.User;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.example.controllers.responses.HttpClient;
 import org.example.controllers.responses.RepositoryResponse;
+import org.example.controllers.responses.Response;
+import org.example.crypt.Cryptographer;
 import org.example.github.auth.AuthBy;
+import org.example.github.dto.GHContentDTO;
 import org.example.github.dto.RepositoryDTO;
+import org.example.github.dto.RepositoryNameDTO;
+import org.example.users.User;
 import org.example.users.UserService;
-import org.kohsuke.github.*;
 import org.kohsuke.github.GHOrganization.RepositoryRole;
+import org.kohsuke.github.GHUser;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class GithubUtils {
 
     private final UserService userService;
 
+    private final Cryptographer cryptographer;
+
     private GitHub client;
 
-    public GithubUtils(UserService userService) {
+    private User user;
 
-        this.userService = userService;
-    }
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public void setup(String id, String by) throws IOException {
 
         if(id == null)
             throw new InvalidParameterException("Parameter 'id' has been required");
 
+        user = userService.find(id);
+
         if(by == null) {
-            loginByPassword(id);
+            loginByJwt();
             return;
         }
 
         switch (AuthBy.valueOf(by)) {
-            case JWT -> loginByJwt(id);
-            case OAUTH -> loginByOauthToken(id);
-            case INSTALLATION -> loginByInstallationToken(id);
-            case PASSWORD -> loginByPassword(id);
+            case OAUTH -> loginByOauthToken();
+            case INSTALLATION -> loginByInstallationToken();
+            case PASSWORD -> loginByPassword();
+            default -> loginByJwt();
         }
     }
-    private void loginByPassword(String id) throws IOException {
 
-        var credentials = userService.findUsernameAndPassword(id);
+    private void loginByPassword() throws IOException {
         client = new GitHubBuilder()
                 .withPassword(
-                        credentials.getUsername(),
-                        credentials.getPassword()
-                ).build();
+                        decrypt(user.getUsername()),
+                        decrypt(user.getPassword())
+                )
+                .build();
     }
 
-    private void loginByJwt(String id) throws IOException {
-
+    private void loginByOauthToken() throws IOException {
         client = new GitHubBuilder()
-                .withJwtToken(
-                        userService.findJwtToken(id)
-                ).build();
+                .withOAuthToken(decrypt(user.getOauthToken()))
+                .build();
     }
 
-    private void loginByInstallationToken(String id) throws IOException {
-
+    private void loginByInstallationToken() throws IOException {
         client = new GitHubBuilder()
-                .withJwtToken(
-                        userService.findInstallationToken(id)
-                ).build();
+                .withAppInstallationToken(decrypt(user.getInstallationToken()))
+                .build();
     }
 
-    private void loginByOauthToken(String id) throws IOException {
-
+    private void loginByJwt() throws IOException {
         client = new GitHubBuilder()
-                .withOAuthToken(
-                        userService.findOauthToken(id)
-                ).build();
+                .withJwtToken(decrypt(user.getJwtToken()))
+                .build();
     }
 
     public RepositoryResponse getAllRepositories() throws IOException {
 
         var response = RepositoryResponse.success();
-        List<RepositoryDTO> repositories = new ArrayList<>();
-        for(var repository: client.listAllPublicRepositories())
-            repositories.add(new RepositoryDTO((repository)));
+        var rawResponse = HttpClient.getRawResponseWithAuthentication("https://api.github.com/user/repos", decrypt(user.getJwtToken()));
+        var listRepositoriesTypeReference = new TypeReference<List<RepositoryNameDTO>>() {};
+        var repositories = mapper.readValue(rawResponse, listRepositoriesTypeReference)
+                        .stream()
+                        .map(RepositoryNameDTO::getName).toList();
         response.setRepositories(repositories);
 
         return response;
@@ -90,8 +100,8 @@ public class GithubUtils {
     public RepositoryResponse getRepository(String repositoryName) throws IOException {
 
         var response = RepositoryResponse.success();
-        GHRepository repository = client.getRepository(repositoryName);
-        response.setRepository(new RepositoryDTO(repository));
+        var rawResponse = HttpClient.getRawResponseWithAuthentication("https://api.github.com/repos/" + repositoryName, decrypt(user.getJwtToken()));
+        response.setRepository(mapper.readValue(rawResponse, RepositoryDTO.class));
 
         return response;
 
@@ -131,5 +141,29 @@ public class GithubUtils {
 
         return RepositoryResponse.success();
     }
-}
 
+    public List<GHContentDTO> getCommitFiles(String repositoryName, String sha) throws IOException {
+
+        var repository = client.getRepository(repositoryName);
+
+        return repository.getCommit(sha).getFiles().stream().map(GHContentDTO::new).toList();
+    }
+
+    private byte[] encrypt(String value) {
+        return (value == null) ? null : cryptographer.encrypt(value.getBytes());
+    }
+    private String decrypt(byte[] value) {
+        return (value == null) ? null :  new String(cryptographer.decrypt(value));
+    }
+
+    public Response updateData(String id, String username, String password, String jwtToken, String installationToken, String oauthToken) {
+        return userService.updateData(
+                id,
+                encrypt(username),
+                encrypt(password),
+                encrypt(jwtToken),
+                encrypt(installationToken),
+                encrypt(oauthToken)
+        );
+    }
+}

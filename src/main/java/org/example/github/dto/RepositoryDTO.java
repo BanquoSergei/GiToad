@@ -1,6 +1,10 @@
 package org.example.github.dto;
 
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.github.dto.deserializers.RepositoryDTODeserializer;
 import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHUser;
@@ -12,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 @Data
+@NoArgsConstructor
+@JsonDeserialize(using = RepositoryDTODeserializer.class)
 public class RepositoryDTO {
 
     private int countForks;
@@ -22,13 +28,9 @@ public class RepositoryDTO {
 
     private GHContentDTO readme;
 
-    private List<CommitDTO> commits = new ArrayList<>();
+    private List<ViewCommitDTO> commits = new ArrayList<>();
 
     private List<BranchDTO> branches;
-
-    private CloneTrafficDTO traffic;
-
-    private List<GHUserDTO> collaborators;
 
     private Map<String, Long> languages;
 
@@ -43,17 +45,12 @@ public class RepositoryDTO {
 
         }
         for (var commit: repository.listCommits())
-            commits.add(new CommitDTO(commit));
+            commits.add(new ViewCommitDTO(commit.getCommitShortInfo()));
 
         branches = repository.getBranches().values().stream().map(BranchDTO::new).toList();
-
-        try {
-            traffic = new CloneTrafficDTO(repository.getCloneTraffic());
-            for (GHUser ghUser : repository.getCollaborators())
-                collaborators.add(new GHUserDTO(ghUser));
-        } catch (HttpException e) {
-
-        }
         languages = repository.listLanguages();
+
+
+
     }
 }

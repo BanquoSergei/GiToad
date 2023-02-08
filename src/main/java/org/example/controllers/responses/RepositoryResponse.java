@@ -3,6 +3,8 @@ package org.example.controllers.responses;
 import lombok.Getter;
 import org.example.github.dto.RepositoryDTO;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -10,7 +12,7 @@ public class RepositoryResponse extends Response {
 
     private RepositoryDTO repository;
 
-    private List<RepositoryDTO> repositories;
+    private List<String> repositories;
 
 
     public RepositoryResponse(String status, String message) {
@@ -25,9 +27,9 @@ public class RepositoryResponse extends Response {
         return new RepositoryResponse(ERROR_STATUS, String.format(ERROR_MESSAGE, exception));
     }
 
-    public void setRepositories(List<RepositoryDTO> repositories) {
+    public void setRepositories(Collection<String> repositories) {
 
-        this.repositories = repositories;
+        this.repositories = new ArrayList<>(repositories);
     }
 
     public void setRepository(RepositoryDTO repository) {

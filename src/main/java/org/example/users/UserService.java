@@ -1,6 +1,6 @@
 package org.example.users;
 
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.Response;
 import org.example.crypt.Cryptographer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,55 +8,22 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository repository;
 
-    private final Cryptographer cryptographer;
-
-    @Autowired
-    public UserService(UserRepository repository, Cryptographer cryptographer) {
-        this.repository = repository;
-        this.cryptographer = cryptographer;
-    }
-
+    @Cacheable("login")
     public User find(String id) {
         return repository.findById(id).orElseThrow();
     }
 
-    @Cacheable("loginByPassword")
-    public UsernameAndPassword findUsernameAndPassword(String id) {
-
-        var user = repository.findById(id).orElseThrow();
-        var username = new String(cryptographer.decrypt(user.getUsername()));
-        var password = new String(cryptographer.decrypt(user.getPassword()));
-
-        return new UsernameAndPassword(username, password);
-    }
-
-    @Cacheable("loginByJwt")
-    public String findJwtToken(String id) {
-
-        return new String(cryptographer.decrypt(repository.findJwtById(id)));
-    }
-
-    @Cacheable("loginByInstallationToken")
-    public String findInstallationToken(String id) {
-
-        return new String(cryptographer.decrypt(repository.findInstallationTokenById(id)));
-    }
-
-    @Cacheable("loginByOauthToken")
-    public String findOauthToken(String id) {
-
-        return new String(cryptographer.decrypt(repository.findOauthTokenById(id)));
-    }
     public Response updateData(String id,
-                               String username,
-                               String password,
-                               String jwtToken,
-                               String installationToken,
-                               String oauthToken) {
+                               byte[] username,
+                               byte[] password,
+                               byte[] jwtToken,
+                               byte[] installationToken,
+                               byte[] oauthToken) {
 
         var user = repository.findById(id).orElseGet(User::new);
 
@@ -71,29 +38,31 @@ public class UserService {
         );
         repository.save(user);
 
-
         return Response.success();
     }
 
     private void setupUser(User user,
                            String id,
-                           String username,
-                           String password,
-                           String jwtToken,
-                           String installationToken,
-                           String oauthToken) {
+                           byte[] username,
+                           byte[] password,
+                           byte[] jwtToken,
+                           byte[] installationToken,
+                           byte[] oauthToken) throws IllegalStateException{
 
         user.setId(id);
 
+        if(user.getJwtToken() == null && jwtToken == null)
+            throw new IllegalStateException("JWT cannot be empty");
+
         if(username != null && password != null) {
-            user.setUsername(cryptographer.encrypt(username.getBytes()));
-            user.setPassword(cryptographer.encrypt(password.getBytes()));
+            user.setUsername(username);
+            user.setPassword(password);
         }
         if(jwtToken != null)
-            user.setJwtToken(cryptographer.encrypt(jwtToken.getBytes()));
+            user.setJwtToken(jwtToken);
         if(installationToken != null)
-            user.setUsername(cryptographer.encrypt(installationToken.getBytes()));
+            user.setInstallationToken(installationToken);
         if(oauthToken != null)
-            user.setUsername(cryptographer.encrypt(oauthToken.getBytes()));
+            user.setOauthToken(oauthToken);
     }
 }

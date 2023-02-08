@@ -14,8 +14,6 @@ public class RepositoriesController {
     @Autowired
     private GithubUtils githubUtils;
 
-    private
-
     @GetMapping("/all")
     public RepositoryResponse getRepositories() throws IOException {
 

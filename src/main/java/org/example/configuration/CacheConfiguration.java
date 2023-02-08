@@ -46,10 +46,7 @@ public class CacheConfiguration {
                                             throw new IllegalArgumentException("Account ID can't be null");
 
                                         return switch (name) {
-                                            case "loginByJwt" -> userService.findJwtToken((String)key);
-                                            case "loginByInstallationToken" -> userService.findInstallationToken((String)key);
-                                            case "loginByOauthToken" -> userService.findOauthToken((String)key);
-                                            case "loginByPassword" -> userService.findUsernameAndPassword((String)key);
+                                            case "login" -> userService.find((String)key);
                                             default -> throw new IllegalArgumentException();
                                         };
                                     }
