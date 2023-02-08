@@ -5,8 +5,6 @@ import org.example.controllers.responses.Response;
 import org.example.data.SecurityData;
 import org.example.exceptions.InvalidInteractionKeyException;
 import org.example.github.GithubUtils;
-import org.example.users.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

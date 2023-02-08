@@ -3,6 +3,7 @@ package org.example.github;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.example.controllers.responses.CommitResponse;
 import org.example.controllers.responses.HttpClient;
 import org.example.controllers.responses.RepositoryResponse;
 import org.example.controllers.responses.Response;
@@ -107,6 +108,35 @@ public class GithubUtils {
 
     }
 
+    public RepositoryResponse createRepository(String name,
+                                               String description,
+                                               String homepage,
+                                               String defaultBranch,
+                                               String ignoreTemplate,
+                                               String licenseTemplate,
+                                               boolean autoInit,
+                                               boolean downloadsEnable,
+                                               boolean issuesEnable,
+                                               boolean isPrivate,
+                                               boolean isTemplate) throws IOException {
+
+        name = name.substring(name.indexOf('/'));
+        client.createRepository(name)
+                .defaultBranch(defaultBranch)
+                .private_(isPrivate)
+                .issues(issuesEnable)
+                .autoInit(autoInit)
+                .description(description)
+                .licenseTemplate(licenseTemplate)
+                .gitignoreTemplate(ignoreTemplate)
+                .homepage(homepage)
+                .downloads(downloadsEnable)
+                .isTemplate(isTemplate)
+                .create();
+
+        return RepositoryResponse.success();
+    }
+
     public RepositoryResponse addCollaboratorsToRepository(String repositoryName, Map<RepositoryRole, List<GHUser>> collaborators) throws IOException {
 
         var repository = client.getRepository(repositoryName);
@@ -142,11 +172,12 @@ public class GithubUtils {
         return RepositoryResponse.success();
     }
 
-    public List<GHContentDTO> getCommitFiles(String repositoryName, String sha) throws IOException {
+    public CommitResponse getCommitFiles(String repositoryName, String sha) throws IOException {
 
         var repository = client.getRepository(repositoryName);
-
-        return repository.getCommit(sha).getFiles().stream().map(GHContentDTO::new).toList();
+        var response = CommitResponse.success();
+        response.setFiles(repository.getCommit(sha).getFiles().stream().map(GHContentDTO::new).toList());
+        return response;
     }
 
     private byte[] encrypt(String value) {

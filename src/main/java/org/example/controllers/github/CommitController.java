@@ -1,6 +1,7 @@
 package org.example.controllers.github;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controllers.responses.CommitResponse;
 import org.example.github.GithubUtils;
 import org.example.github.dto.GHContentDTO;
 import org.springframework.http.MediaType;
@@ -18,8 +19,8 @@ import java.util.List;
 public class CommitController {
     private final GithubUtils githubUtils;
 
-    @GetMapping(value = "/files", produces = MediaType.APPLICATION_NDJSON_VALUE)
-    public List<GHContentDTO> getFiles(@RequestParam String repositoryName, @RequestParam String sha) throws IOException {
+    @GetMapping(value = "/files")
+    public CommitResponse getFiles(@RequestParam String repositoryName, @RequestParam String sha) throws IOException {
 
         return githubUtils.getCommitFiles(repositoryName, sha);
     }
