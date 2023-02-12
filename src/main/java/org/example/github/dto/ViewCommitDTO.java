@@ -7,6 +7,7 @@ import org.example.github.dto.deserializers.ViewCommitDTODeserializer;
 import org.kohsuke.github.GHCommit;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +23,8 @@ public class ViewCommitDTO {
     private String url;
 
     private String commiter;
+
+    private List<GHContentDTO> files;
 
 
     public ViewCommitDTO(GHCommit.ShortInfo info) {

@@ -14,11 +14,14 @@ public class GHUserDTO {
 
     private int countFollowers;
 
+    private String avatarUrl;
+
     private String url;
 
     public GHUserDTO(GHUser user) throws IOException {
 
         bio = user.getBio();
+        avatarUrl = user.getAvatarUrl();
         name = user.getName();
         countFollowers = user.getFollowersCount();
         url = user.getUrl().toString();

@@ -3,10 +3,7 @@ package org.example.github;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.controllers.responses.CommitResponse;
-import org.example.controllers.responses.HttpClient;
-import org.example.controllers.responses.RepositoryResponse;
-import org.example.controllers.responses.Response;
+import org.example.controllers.responses.*;
 import org.example.crypt.Cryptographer;
 import org.example.github.auth.AuthBy;
 import org.example.github.dto.GHContentDTO;
@@ -14,6 +11,7 @@ import org.example.github.dto.RepositoryDTO;
 import org.example.github.dto.RepositoryNameDTO;
 import org.example.users.User;
 import org.example.users.UserService;
+import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHOrganization.RepositoryRole;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -31,6 +29,7 @@ public class GithubUtils {
     private final UserService userService;
 
     private final Cryptographer cryptographer;
+    private final String REPOS_URL = "https://api.github.com/repos/";
 
     private GitHub client;
 
@@ -101,7 +100,7 @@ public class GithubUtils {
     public RepositoryResponse getRepository(String repositoryName) throws IOException {
 
         var response = RepositoryResponse.success();
-        var rawResponse = HttpClient.getRawResponseWithAuthentication("https://api.github.com/repos/" + repositoryName, decrypt(user.getJwtToken()));
+        var rawResponse = HttpClient.getRawResponseWithAuthentication(REPOS_URL + repositoryName, decrypt(user.getJwtToken()));
         response.setRepository(mapper.readValue(rawResponse, RepositoryDTO.class));
 
         return response;
@@ -112,8 +111,6 @@ public class GithubUtils {
                                                String description,
                                                String homepage,
                                                String defaultBranch,
-                                               String ignoreTemplate,
-                                               String licenseTemplate,
                                                boolean autoInit,
                                                boolean downloadsEnable,
                                                boolean issuesEnable,
@@ -127,8 +124,6 @@ public class GithubUtils {
                 .issues(issuesEnable)
                 .autoInit(autoInit)
                 .description(description)
-                .licenseTemplate(licenseTemplate)
-                .gitignoreTemplate(ignoreTemplate)
                 .homepage(homepage)
                 .downloads(downloadsEnable)
                 .isTemplate(isTemplate)
@@ -172,11 +167,29 @@ public class GithubUtils {
         return RepositoryResponse.success();
     }
 
+    public FileResponse getFile(String repositoryName, String path) throws IOException {
+
+        var response = FileResponse.success();
+        var repository = client.getRepository(repositoryName);
+        response.setFile(new GHContentDTO(repository.getFileContent(path)));
+
+        return response;
+    }
+
     public CommitResponse getCommitFiles(String repositoryName, String sha) throws IOException {
 
         var repository = client.getRepository(repositoryName);
         var response = CommitResponse.success();
-        response.setFiles(repository.getCommit(sha).getFiles().stream().map(GHContentDTO::new).toList());
+        response.setFiles(
+                repository.getCommit(sha).getFiles().stream()
+                .map(file -> {
+                    try {
+                        return new GHContentDTO(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList()
+        );
         return response;
     }
 

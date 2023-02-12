@@ -32,8 +32,6 @@ public class RepositoriesController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String homepage,
             @RequestParam(required = false) String defaultBranch,
-            @RequestParam(required = false) String ignoreTemplate,
-            @RequestParam(required = false) String licenseTemplate,
             @RequestParam(required = false) boolean autoInit,
             @RequestParam(required = false) boolean downloadsEnable,
             @RequestParam(required = false) boolean issuesEnable,
@@ -42,7 +40,7 @@ public class RepositoriesController {
     ) throws IOException {
 
         return githubUtils.createRepository(
-                name, description, homepage, defaultBranch, ignoreTemplate, licenseTemplate,
+                name, description, homepage, defaultBranch,
                 autoInit, downloadsEnable, issuesEnable, isPrivate, isTemplate
         );
     }

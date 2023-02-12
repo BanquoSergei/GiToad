@@ -18,7 +18,7 @@ public class CommitResponse extends Response {
     }
 
     public static CommitResponse success() {
-        return new CommitResponse(SUCCESS_STATUS, "Successful repository operation");
+        return new CommitResponse(SUCCESS_STATUS, "Successful commit operation");
     }
 
     public static CommitResponse error(Exception exception) {

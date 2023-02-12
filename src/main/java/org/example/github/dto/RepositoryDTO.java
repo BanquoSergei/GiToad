@@ -49,8 +49,5 @@ public class RepositoryDTO {
 
         branches = repository.getBranches().values().stream().map(BranchDTO::new).toList();
         languages = repository.listLanguages();
-
-
-
     }
 }

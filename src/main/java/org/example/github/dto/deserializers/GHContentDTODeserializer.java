@@ -27,7 +27,8 @@ public class GHContentDTODeserializer extends StdDeserializer<GHContentDTO> {
         dto.setUrl(node.get("url").textValue());
         dto.setSize(node.get("size").longValue());
         dto.setName(node.get("name").textValue());
-        dto.setFile(node.get("type").textValue().equals("file"));
+        dto.setContent(node.get("content").binaryValue());
+        dto.setEncoding(node.get("encoding").textValue());
         dto.setDownloadUrl(node.get("download_url").textValue());
 
         return dto;
