@@ -210,4 +210,18 @@ public class GithubUtils {
                 encrypt(oauthToken)
         );
     }
+
+    public FileResponse deleteFile(String repositoryName, String path, String message) throws IOException {
+
+        client.getRepository(repositoryName).getFileContent(path).delete(message);
+
+        return FileResponse.success();
+    }
+
+    public FileResponse updateFile(String repositoryName, String path, String content, String message) throws IOException {
+
+        client.getRepository(repositoryName).getFileContent(path).update(content, message);
+
+        return FileResponse.success();
+    }
 }
