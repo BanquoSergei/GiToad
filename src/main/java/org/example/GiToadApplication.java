@@ -6,7 +6,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @PropertySources({
@@ -15,9 +14,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScans(
         @ComponentScan("org.example")
 )
-public class Main {
+public class GiToadApplication {
     public static void main(String[] args)  {
 
-        SpringApplication.run(Main.class, args);
+        SpringApplication.run(GiToadApplication.class, args);
     }
 }

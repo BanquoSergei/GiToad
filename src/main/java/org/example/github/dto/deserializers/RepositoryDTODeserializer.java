@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.example.controllers.responses.HttpClient;
+import org.example.controllers.clients.HttpClient;
 import org.example.github.dto.BranchDTO;
 import org.example.github.dto.GHContentDTO;
 import org.example.github.dto.RepositoryDTO;

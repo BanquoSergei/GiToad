@@ -31,6 +31,6 @@ public class Cryptographer {
         }
     }
 
-    public byte[] encrypt(byte[] input) { return processString(input, Cipher.ENCRYPT_MODE); }
-    public byte[] decrypt(byte[] input) { return processString(input, Cipher.DECRYPT_MODE); }
+    public byte[] encrypt(byte[] input) { return (input == null) ? null : processString(input, Cipher.ENCRYPT_MODE); }
+    public byte[] decrypt(byte[] input) { return  (input == null) ? null : processString(input, Cipher.DECRYPT_MODE); }
 }

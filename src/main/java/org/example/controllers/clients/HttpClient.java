@@ -1,4 +1,4 @@
-package org.example.controllers.responses;
+package org.example.controllers.clients;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -10,10 +10,12 @@ public class HttpClient {
 
     public static String getRawResponseWithAuthentication(String url, String token) throws IOException {
 
-        var request = new Request.Builder().get()
-                .url(url)
-                .addHeader("Authorization", "Bearer " + token)
-                .build();
+        var reqBuilder = new Request.Builder().get()
+                .url(url);
+        if(token != null)
+            reqBuilder.addHeader("Authorization", "Bearer " + token);
+
+        var request = reqBuilder.build();
         var httpClient = new OkHttpClient();
 
         var res = httpClient.newBuilder()
@@ -28,8 +30,8 @@ public class HttpClient {
             throw new IOException("Response was returned with message: " + res.message());
     }
 
-    public static String getRawResponse(String url) throws IOException {
 
+    public static String getRawResponse(String url) throws IOException {
         return getRawResponseWithAuthentication(url, null);
     }
 }

@@ -38,7 +38,7 @@ public class AccountController {
     @PostMapping("/login")
     public Response login(@RequestParam String id,
                           @RequestParam("interaction_key") String interactionKey,
-                          @RequestParam(value = "by", required = false) String by) throws InvalidInteractionKeyException, IOException {
+                          @RequestParam(value = "by", required = false, defaultValue = "PASSWORD") String by) throws InvalidInteractionKeyException, IOException {
 
 //        if(!data.checkInteractionKey(interactionKey))
 //            throw new InvalidInteractionKeyException();

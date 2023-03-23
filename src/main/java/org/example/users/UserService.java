@@ -25,6 +25,7 @@ public class UserService {
                                byte[] installationToken,
                                byte[] oauthToken) {
 
+
         var user = repository.findById(id).orElseGet(User::new);
 
         setupUser(

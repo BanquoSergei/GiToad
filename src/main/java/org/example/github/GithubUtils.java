@@ -3,6 +3,7 @@ package org.example.github;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.example.controllers.clients.HttpClient;
 import org.example.controllers.responses.*;
 import org.example.crypt.Cryptographer;
 import org.example.github.auth.AuthBy;
@@ -11,7 +12,6 @@ import org.example.github.dto.RepositoryDTO;
 import org.example.github.dto.RepositoryNameDTO;
 import org.example.users.User;
 import org.example.users.UserService;
-import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHOrganization.RepositoryRole;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -19,7 +19,6 @@ import org.kohsuke.github.GitHubBuilder;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class GithubUtils {
     private final UserService userService;
 
     private final Cryptographer cryptographer;
-    private final String REPOS_URL = "https://api.github.com/repos/";
+    private final static String REPOS_URL = "https://api.github.com/repos/%s/%s";
 
     private GitHub client;
 
@@ -100,7 +99,7 @@ public class GithubUtils {
     public RepositoryResponse getRepository(String repositoryName) throws IOException {
 
         var response = RepositoryResponse.success();
-        var rawResponse = HttpClient.getRawResponseWithAuthentication(REPOS_URL + repositoryName, decrypt(user.getJwtToken()));
+        var rawResponse = HttpClient.getRawResponseWithAuthentication(String.format(REPOS_URL, decrypt(user.getUsername()), repositoryName), decrypt(user.getJwtToken()));
         response.setRepository(mapper.readValue(rawResponse, RepositoryDTO.class));
 
         return response;
