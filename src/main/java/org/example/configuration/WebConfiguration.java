@@ -34,6 +34,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new AuthInterceptor(jwtUtil)).excludePathPatterns()
                 .addPathPatterns(
                         "/account/login",
+                        "/account/exists",
                         "/security/interactionKey"
                 );
     }

@@ -82,4 +82,9 @@ public class UserService {
         if(oauthToken != null)
             user.setOauthToken(oauthToken);
     }
+
+    public boolean existsById(String id) {
+
+        return repository.existsById(id);
+    }
 }

@@ -1,13 +1,11 @@
 package org.example.controllers.github;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controllers.responses.ExistsResponse;
 import org.example.controllers.responses.Response;
 import org.example.data.SecurityData;
 import org.example.github.utils.GithubUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -37,5 +35,11 @@ public class AccountController {
         githubUtils.setup(id, by);
 
         return Response.success();
+    }
+
+    @GetMapping("/exists")
+    public ExistsResponse exists(@RequestParam String id) {
+
+        return githubUtils.getAccountUtils().exists(id);
     }
 }

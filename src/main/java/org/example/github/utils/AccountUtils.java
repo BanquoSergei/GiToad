@@ -1,6 +1,7 @@
 package org.example.github.utils;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controllers.responses.ExistsResponse;
 import org.example.controllers.responses.Response;
 import org.example.crypt.Cryptographer;
 import org.example.github.auth.AuthBy;
@@ -83,5 +84,12 @@ public class AccountUtils {
         }
 
         return new SetupData(jwt, client);
+    }
+
+    public ExistsResponse exists(String id) {
+        var res = ExistsResponse.success();
+        res.setExists(userService.existsById(id));
+
+        return res;
     }
 }
