@@ -31,12 +31,10 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthInterceptor(jwtUtil))
+        registry.addInterceptor(new AuthInterceptor(jwtUtil)).excludePathPatterns()
                 .addPathPatterns(
-                        "/account/update",
-                        "/commits/**",
-                        "/files/**",
-                        "/repositories/**"
+                        "/account/login",
+                        "/security/interactionKey"
                 );
     }
 }

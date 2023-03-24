@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("security")
-//@BasicResponseExceptionHandler
 public class KeyManagementController {
 
     private final SecurityData data;
