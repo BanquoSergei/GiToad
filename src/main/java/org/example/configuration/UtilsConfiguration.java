@@ -2,8 +2,9 @@ package org.example.configuration;
 
 import org.example.crypt.Cryptographer;
 import org.example.data.SecurityData;
-import org.example.github.GithubUtils;
+import org.example.github.utils.GithubUtils;
 import org.example.users.UserService;
+import org.example.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,13 @@ public class UtilsConfiguration {
                                        @Value("${encryption.algorithm.cipher}") String algorithmCipher,
                                        @Value("${encryption.key}") String key) throws NoSuchPaddingException, NoSuchAlgorithmException {
         return new Cryptographer(algorithmKey, algorithmCipher, key);
+    }
+
+    @Bean
+    @Scope("singleton")
+    public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret) {
+
+        return new JwtUtil(secret);
     }
 
     @Bean

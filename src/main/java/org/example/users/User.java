@@ -2,6 +2,11 @@ package org.example.users;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Set;
 
 @Data
 @Entity
@@ -24,6 +29,7 @@ public class User {
     @Lob
     private byte[] oauthToken;
 
+    private Set<Authority> authorities = Set.of(Authority.USER);
     @Column
     @Lob
     private byte[] installationToken;
@@ -31,4 +37,8 @@ public class User {
     @Column
     @Lob
     private byte[] jwtToken;
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 }

@@ -1,7 +1,7 @@
 package org.example.controllers.github;
 
 import org.example.controllers.responses.RepositoryResponse;
-import org.example.github.GithubUtils;
+import org.example.github.utils.GithubUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +17,13 @@ public class RepositoriesController {
     @GetMapping("/all")
     public RepositoryResponse getRepositories() throws IOException {
 
-        return githubUtils.getAllRepositories();
+        return githubUtils.getRepositoriesUtils().getAllRepositories();
     }
 
     @GetMapping("/get")
     public RepositoryResponse getRepository(@RequestParam("name") String repositoryName) throws IOException {
 
-        return githubUtils.getRepository(repositoryName);
+        return githubUtils.getRepositoriesUtils().getRepository(repositoryName);
     }
 
     @PutMapping("/create")
@@ -39,7 +39,7 @@ public class RepositoriesController {
             @RequestParam(required = false) boolean isTemplate
     ) throws IOException {
 
-        return githubUtils.createRepository(
+        return githubUtils.getRepositoriesUtils().createRepository(
                 name, description, homepage, defaultBranch,
                 autoInit, downloadsEnable, issuesEnable, isPrivate, isTemplate
         );
@@ -49,7 +49,7 @@ public class RepositoriesController {
     public RepositoryResponse getRepository(@PathVariable String repositoryName,
                                             @ModelAttribute UserPermissionMapWrapper collaborators) throws IOException {
 
-        return githubUtils.addCollaboratorsToRepository(repositoryName, collaborators.getTags());
+        return githubUtils.getRepositoriesUtils().addCollaboratorsToRepository(repositoryName, collaborators.getTags());
     }
 
     @PostMapping("/setup/{name}")
@@ -61,6 +61,6 @@ public class RepositoriesController {
                                     @RequestParam(required = false) String description,
                                     @RequestParam(required = false) Boolean isPrivate) throws IOException {
 
-        return githubUtils.setupRepository(repositoryName, renameTo, homeUrl, emailHook, defaultBranch, description, isPrivate);
+        return githubUtils.getRepositoriesUtils().setupRepository(repositoryName, renameTo, homeUrl, emailHook, defaultBranch, description, isPrivate);
     }
 }

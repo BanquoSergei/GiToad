@@ -14,8 +14,24 @@ public class UserService {
     private final UserRepository repository;
 
     @Cacheable("login")
-    public User find(String id) {
-        return repository.findById(id).orElseThrow();
+    public UsernameAndPassword findLoginById(String id) {
+        var username = repository.findUsernameById(id);
+        var password = repository.findPasswordById(id);
+
+        return new UsernameAndPassword(username, password);
+    }
+
+    @Cacheable("jwt")
+    public byte[] findJwtById(String id) {
+        return repository.findJwtById(id);
+    }
+    @Cacheable("oauth")
+    public byte[] findOauthById(String id) {
+        return repository.findOauthTokenById(id);
+    }
+
+    public byte[] findInstallationById(String id) {
+        return repository.findInstallationTokenById(id);
     }
 
     public Response updateData(String id,

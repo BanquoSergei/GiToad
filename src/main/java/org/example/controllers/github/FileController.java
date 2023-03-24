@@ -2,7 +2,7 @@ package org.example.controllers.github;
 
 import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.FileResponse;
-import org.example.github.GithubUtils;
+import org.example.github.utils.GithubUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ public class FileController {
     public FileResponse getFile(@RequestParam String repositoryName,
                                 @RequestParam String path) throws IOException {
 
-        return githubUtils.getFile(repositoryName, path);
+        return githubUtils.getFilesUtils().getFile(repositoryName, path);
     }
 
     @DeleteMapping
@@ -26,7 +26,7 @@ public class FileController {
                                    @RequestParam String path,
                                    @RequestParam(required = false) String message) throws IOException {
 
-        return githubUtils.deleteFile(repositoryName, path, message);
+        return githubUtils.getFilesUtils().deleteFile(repositoryName, path, message);
     }
 
     @PutMapping
@@ -35,6 +35,6 @@ public class FileController {
                                    @RequestParam String content,
                                    @RequestParam(required = false) String message) throws IOException {
 
-        return githubUtils.updateFile(repositoryName, path, content, message);
+        return githubUtils.getFilesUtils().updateFile(repositoryName, path, content, message);
     }
 }

@@ -8,9 +8,7 @@ import lombok.Getter;
 @Getter
 public class UsernameAndPassword {
 
-    private String username;
+    private byte[] username;
 
-    private String password;
-
-    public String get() {return password;}
+    private byte[] password;
 }
