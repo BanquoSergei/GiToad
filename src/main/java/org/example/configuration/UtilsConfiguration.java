@@ -21,8 +21,8 @@ public class UtilsConfiguration {
 
     @Bean
     @Scope(scopeName = "singleton")
-    public SecurityData data(@Autowired Cryptographer cryptographer, @Value("${secret_key}") String secret) {
-        return new SecurityData(cryptographer, secret);
+    public SecurityData data(@Autowired Cryptographer cryptographer, @Value("${secret_key}") String secret, @Autowired JwtUtil jwtUtil) {
+        return new SecurityData(cryptographer, secret, jwtUtil);
     }
 
     @Bean

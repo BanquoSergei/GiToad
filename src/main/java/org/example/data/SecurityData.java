@@ -3,6 +3,7 @@ package org.example.data;
 import lombok.Data;
 import org.example.crypt.Cryptographer;
 import org.example.exceptions.InvalidInteractionKeyException;
+import org.example.utils.JwtUtil;
 
 @Data
 public class SecurityData {
@@ -11,11 +12,14 @@ public class SecurityData {
 
     private byte[] interactionKey;
 
-    private Cryptographer cryptographer;
+    private final Cryptographer cryptographer;
 
-    public SecurityData(Cryptographer cryptographer, String secret) {
+    private final JwtUtil jwtUtil;
+
+    public SecurityData(Cryptographer cryptographer, String secret, JwtUtil jwtUtil) {
         this.cryptographer = cryptographer;
         this.secretKey = cryptographer.encrypt(secret.getBytes());
+        this.jwtUtil = jwtUtil;
     }
 
     public void setInteractionKey(String secretKey, String interactionKey) throws InvalidInteractionKeyException {
@@ -23,16 +27,11 @@ public class SecurityData {
         if(!checkSecretKey(secretKey))
             throw new InvalidInteractionKeyException();
 
-        this.interactionKey = cryptographer.encrypt(interactionKey.getBytes());
+        jwtUtil.setKey(cryptographer.decrypt(interactionKey.getBytes()));
     }
 
     public boolean checkSecretKey(String secretKey) {
 
         return new String(cryptographer.decrypt(this.secretKey)).equals(secretKey);
-    }
-
-    public boolean checkInteractionKey(String interactionKey){
-
-        return new String(cryptographer.decrypt(this.interactionKey)).equals(interactionKey);
     }
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class JwtUtil {
 
-    private final byte[] secret;
+    private byte[] secret;
 
     public JwtUtil(String secret) {
         this.secret = secret.getBytes();
@@ -29,5 +29,9 @@ public class JwtUtil {
 
     public String extractId(String token) {
         return getClaimsFromToken(token).get("id").toString();
+    }
+
+    public void setKey(byte[] key) {
+        secret = key;
     }
 }
