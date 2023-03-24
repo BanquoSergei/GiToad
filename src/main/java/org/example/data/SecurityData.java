@@ -27,11 +27,11 @@ public class SecurityData {
         if(!checkSecretKey(secretKey))
             throw new InvalidInteractionKeyException();
 
-        jwtUtil.setKey(cryptographer.decrypt(interactionKey.getBytes()));
+        jwtUtil.setKey(interactionKey.getBytes());
     }
 
     public boolean checkSecretKey(String secretKey) {
 
-        return new String(cryptographer.decrypt(this.secretKey)).equals(secretKey);
+        return secretKey != null && cryptographer.matches(this.secretKey, secretKey);
     }
 }
