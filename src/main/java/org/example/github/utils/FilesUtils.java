@@ -3,8 +3,11 @@ package org.example.github.utils;
 import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.CommitResponse;
 import org.example.controllers.responses.FileResponse;
+import org.example.controllers.responses.LogicalStateResponse;
 import org.example.github.dto.GHContentDTO;
+import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GitHub;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 
@@ -15,31 +18,28 @@ public class FilesUtils {
 
     public FileResponse getFile(String repositoryName, String path) throws IOException {
 
-        var response = FileResponse.success();
         var repository = client.getRepository(repositoryName);
-        response.setFile(new GHContentDTO(repository.getFileContent(path)));
 
-        return response;
+        return new FileResponse(new GHContentDTO(repository.getFileContent(path)));
     }
-    public FileResponse deleteFile(String repositoryName, String path, String message) throws IOException {
+    public ResponseEntity<LogicalStateResponse> deleteFile(String repositoryName, String path, String message) throws IOException {
 
         client.getRepository(repositoryName).getFileContent(path).delete(message);
 
-        return FileResponse.success();
+        return ResponseEntity.ok(new LogicalStateResponse(true));
     }
 
-    public FileResponse updateFile(String repositoryName, String path, String content, String message) throws IOException {
+    public ResponseEntity<LogicalStateResponse> updateFile(String repositoryName, String path, String content, String message) throws IOException {
 
         client.getRepository(repositoryName).getFileContent(path).update(content, message);
 
-        return FileResponse.success();
+        return ResponseEntity.ok(new LogicalStateResponse(true));
     }
 
     public CommitResponse getCommitFiles(String repositoryName, String sha) throws IOException {
 
         var repository = client.getRepository(repositoryName);
-        var response = CommitResponse.success();
-        response.setFiles(
+        return new CommitResponse(
                 repository.getCommit(sha).getFiles().stream()
                         .map(file -> {
                             try {
@@ -49,6 +49,5 @@ public class FilesUtils {
                             }
                         }).toList()
         );
-        return response;
     }
 }

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.controllers.clients.HttpClient;
+import org.example.controllers.responses.LogicalStateResponse;
+import org.example.controllers.responses.RepositoriesResponse;
 import org.example.controllers.responses.RepositoryResponse;
 import org.example.crypt.Cryptographer;
 import org.example.github.dto.RepositoryDTO;
@@ -11,6 +13,7 @@ import org.example.github.dto.RepositoryNameDTO;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,30 +30,32 @@ public class RepositoriesUtils {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public RepositoryResponse getAllRepositories() throws IOException {
+    public ResponseEntity<RepositoriesResponse> getAllRepositories() throws IOException {
 
-        var response = RepositoryResponse.success();
         var rawResponse = HttpClient.getRawResponseWithAuthentication("https://api.github.com/user/repos", new String(cryptographer.decrypt(jwt)));
         var listRepositoriesTypeReference = new TypeReference<List<RepositoryNameDTO>>() {};
         var repositories = mapper.readValue(rawResponse, listRepositoriesTypeReference)
                 .stream()
                 .map(RepositoryNameDTO::getName).toList();
-        response.setRepositories(repositories);
-
-        return response;
+        return ResponseEntity.ok(new RepositoriesResponse(repositories));
     }
 
-    public RepositoryResponse getRepository(String repositoryName) throws IOException {
+    public ResponseEntity<RepositoryResponse> getRepository(String repositoryName) throws IOException {
 
-        var response = RepositoryResponse.success();
-        var rawResponse = HttpClient.getRawResponseWithAuthentication(String.format(REPOS_URL, client.getMyself().getLogin(), repositoryName), new String(cryptographer.decrypt(jwt)));
-        response.setRepository(mapper.readValue(rawResponse, RepositoryDTO.class));
+        var rawResponse = HttpClient.getRawResponseWithAuthentication(
+                String.format(
+                        REPOS_URL,
+                        client.getMyself().getLogin(),
+                        repositoryName
+                ),
+                new String(cryptographer.decrypt(jwt)
+                )
+        );
 
-        return response;
-
+        return ResponseEntity.ok(new RepositoryResponse(mapper.readValue(rawResponse, RepositoryDTO.class)));
     }
 
-    public RepositoryResponse createRepository(String name,
+    public ResponseEntity<LogicalStateResponse> createRepository(String name,
                                                String description,
                                                String homepage,
                                                String defaultBranch,
@@ -72,10 +77,10 @@ public class RepositoriesUtils {
                 .isTemplate(isTemplate)
                 .create();
 
-        return RepositoryResponse.success();
+        return ResponseEntity.ok(new LogicalStateResponse(true));
     }
 
-    public RepositoryResponse addCollaboratorsToRepository(String repositoryName, Map<GHOrganization.RepositoryRole, List<GHUser>> collaborators) throws IOException {
+    public ResponseEntity<LogicalStateResponse> addCollaboratorsToRepository(String repositoryName, Map<GHOrganization.RepositoryRole, List<GHUser>> collaborators) throws IOException {
 
         var repository = client.getRepository(repositoryName);
         collaborators.keySet().forEach(role -> {
@@ -85,16 +90,16 @@ public class RepositoriesUtils {
                 throw new RuntimeException(e);
             }
         });
-        return RepositoryResponse.success();
+        return ResponseEntity.ok(new LogicalStateResponse(true));
     }
 
-    public RepositoryResponse setupRepository(String repositoryName,
-                                              String renameTo,
-                                              String homeUrl,
-                                              String emailHook,
-                                              String defaultBranch,
-                                              String description,
-                                              Boolean isPrivate) throws IOException {
+    public ResponseEntity<LogicalStateResponse> setupRepository(String repositoryName,
+                                                                String renameTo,
+                                                                String homeUrl,
+                                                                String emailHook,
+                                                                String defaultBranch,
+                                                                String description,
+                                                                Boolean isPrivate) throws IOException {
 
         var repository = client.getRepository(repositoryName);
 
@@ -107,6 +112,6 @@ public class RepositoriesUtils {
         if(emailHook != null)
             repository.setEmailServiceHook(emailHook);
 
-        return RepositoryResponse.success();
+        return ResponseEntity.ok(new LogicalStateResponse(true));
     }
 }

@@ -1,16 +1,22 @@
 package org.example.github.utils;
 
 import lombok.RequiredArgsConstructor;
-import org.example.controllers.responses.ExistsResponse;
-import org.example.controllers.responses.Response;
+import lombok.SneakyThrows;
+import org.example.controllers.github.account.UserDataDTO;
+import org.example.controllers.responses.LogicalStateResponse;
+import org.example.controllers.responses.RegistrationResponse;
 import org.example.crypt.Cryptographer;
 import org.example.github.auth.AuthBy;
 import org.example.users.UserService;
 import org.example.users.UsernameAndPassword;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class AccountUtils {
@@ -20,38 +26,86 @@ public class AccountUtils {
 
     private final Cryptographer cryptographer;
 
-    GitHub loginByPassword(UsernameAndPassword usernameAndPassword) throws IOException {
+    @SneakyThrows
+    GitHub loginByPassword(UsernameAndPassword usernameAndPassword) {
         return client = new GitHubBuilder()
                 .withPassword(
-                        decrypt(usernameAndPassword.getUsername()),
-                        decrypt(usernameAndPassword.getPassword())
+                        decrypt(usernameAndPassword.username()),
+                        decrypt(usernameAndPassword.password())
                 )
                 .build();
     }
 
-    GitHub loginByOauthToken(byte[] oauth) throws IOException {
-
-        client = new GitHubBuilder()
-                .withOAuthToken(decrypt(oauth))
-                .build();
+    @SneakyThrows
+    GitHub loginByOauthToken(byte[] oauth) {
 
         return client = new GitHubBuilder()
                 .withOAuthToken(decrypt(oauth))
                 .build();
     }
 
-    GitHub loginByInstallationToken(byte[] installation) throws IOException {
+    @SneakyThrows
+    GitHub loginByInstallationToken(byte[] installation) {
         return client = new GitHubBuilder()
                 .withAppInstallationToken(decrypt(installation))
                 .build();
     }
 
-    GitHub loginByJwt(byte[] jwt) throws IOException {
+    @SneakyThrows
+    GitHub loginByJwt(byte[] jwt) {
 
         return client = new GitHubBuilder()
                 .withJwtToken(decrypt(jwt))
                 .build();
 
+    }
+
+    private boolean checkByJwt(String jwt) {
+        try {
+            new GitHubBuilder()
+                    .withJwtToken(jwt)
+                    .build();
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkByInstallation(String installation) {
+        try {
+            new GitHubBuilder()
+                    .withAppInstallationToken(installation)
+                    .build().getMyself();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    boolean checkByOauth(String oauth) {
+
+        try {
+            new GitHubBuilder()
+                    .withOAuthToken(oauth)
+                    .build().getMyself();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+
+    boolean checkByLoginAndPassword(String username, String password) {
+        try {
+            new GitHubBuilder()
+                    .withPassword(
+                            username, password
+                    )
+                    .build().getMyself();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     private byte[] encrypt(String value) {
@@ -61,23 +115,47 @@ public class AccountUtils {
         return (value == null) ? null :  new String(cryptographer.decrypt(value));
     }
 
-    public Response updateData(String id, String username, String password, String jwtToken, String installationToken, String oauthToken) {
+    public ResponseEntity<RegistrationResponse> updateData(UserDataDTO data) {
+
+        var violations = new ArrayList<String>();
+
+        validateAuthData(data, violations);
+
+        if(!violations.isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RegistrationResponse(violations));
+
         return userService.updateData(
-                id,
-                encrypt(username),
-                encrypt(password),
-                encrypt(jwtToken),
-                encrypt(installationToken),
-                encrypt(oauthToken)
+                data.id(),
+                encrypt(data.login()),
+                encrypt(data.password()),
+                encrypt(data.jwt()),
+                encrypt(data.installation()),
+                encrypt(data.oauth()),
+                violations
         );
     }
 
-    SetupData setup(String id, String by) throws IOException {
+    private void validateAuthData(UserDataDTO data, List<String> violations) {
+
+        if(data.nonNullUsernameAndPassword() && !checkByLoginAndPassword(data.login(), data.password()))
+            violations.add("Invalid login and password");
+        if(data.jwt() != null && !checkByJwt(data.jwt()))
+            violations.add("Invalid JWT");
+        if(data.installation() != null && !checkByInstallation(data.installation()))
+            violations.add("Invalid installation token");
+        if(data.oauth() != null && !checkByOauth(data.oauth()))
+            violations.add("Invalid OAUTH");
+    }
+
+    SetupData setup(String id, String by) {
 
         var jwt = userService.findJwtById(id);
 
         switch (AuthBy.valueOf(by)) {
-            case OAUTH -> client = loginByOauthToken(userService.findOauthById(id));
+            case OAUTH -> {
+
+                client = loginByOauthToken(userService.findOauthById(id));
+            }
             case INSTALLATION -> client = loginByInstallationToken(userService.findInstallationById(id));
             case PASSWORD -> client = loginByPassword(userService.findLoginById(id));
             default -> client = loginByJwt(jwt);
@@ -86,10 +164,8 @@ public class AccountUtils {
         return new SetupData(jwt, client);
     }
 
-    public ExistsResponse exists(String id) {
-        var res = ExistsResponse.success();
-        res.setExists(userService.existsById(id));
+    public ResponseEntity<LogicalStateResponse> exists(String id) {
 
-        return res;
+        return ResponseEntity.ok(new LogicalStateResponse(userService.existsById(id)));
     }
 }

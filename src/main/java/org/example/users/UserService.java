@@ -1,11 +1,15 @@
 package org.example.users;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.controllers.responses.Response;
-import org.example.crypt.Cryptographer;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.controllers.responses.RegistrationResponse;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -14,14 +18,17 @@ public class UserService {
     private final UserRepository repository;
 
     @Cacheable("login")
+    @Transactional
     public UsernameAndPassword findLoginById(String id) {
-        var username = repository.findUsernameById(id);
-        var password = repository.findPasswordById(id);
-
-        return new UsernameAndPassword(username, password);
+//        var username = repository.findUsernameById(id);
+//        var password = repository.findPasswordById(id);
+//
+//        return new UsernameAndPassword(username, password);
+        return repository.findUsernameAndPasswordById(id);
     }
 
     @Cacheable("jwt")
+    @Transactional
     public byte[] findJwtById(String id) {
         return repository.findJwtById(id);
     }
@@ -34,12 +41,13 @@ public class UserService {
         return repository.findInstallationTokenById(id);
     }
 
-    public Response updateData(String id,
-                               byte[] username,
-                               byte[] password,
-                               byte[] jwtToken,
-                               byte[] installationToken,
-                               byte[] oauthToken) {
+    public ResponseEntity<RegistrationResponse> updateData(String id,
+                                                           byte[] username,
+                                                           byte[] password,
+                                                           byte[] jwtToken,
+                                                           byte[] installationToken,
+                                                           byte[] oauthToken,
+                                                           ArrayList<String> violations) {
 
 
         var user = repository.findById(id).orElseGet(User::new);
@@ -51,11 +59,16 @@ public class UserService {
                 password,
                 jwtToken,
                 installationToken,
-                oauthToken
+                oauthToken,
+                violations
         );
+
+        if(!violations.isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RegistrationResponse(violations));
+
         repository.save(user);
 
-        return Response.success();
+        return ResponseEntity.ok().body(new RegistrationResponse(violations));
     }
 
     private void setupUser(User user,
@@ -64,17 +77,20 @@ public class UserService {
                            byte[] password,
                            byte[] jwtToken,
                            byte[] installationToken,
-                           byte[] oauthToken) throws IllegalStateException{
+                           byte[] oauthToken,
+                           ArrayList<String> violations) throws IllegalStateException{
 
         user.setId(id);
 
         if(user.getJwtToken() == null && jwtToken == null)
-            throw new IllegalStateException("JWT cannot be empty");
+            violations.add("JWT cannot be empty");
 
         if(username != null && password != null) {
             user.setUsername(username);
             user.setPassword(password);
         }
+        else if((username == null) != (password == null))
+            violations.add("Login and password must be specified together");
         if(jwtToken != null)
             user.setJwtToken(jwtToken);
         if(installationToken != null)

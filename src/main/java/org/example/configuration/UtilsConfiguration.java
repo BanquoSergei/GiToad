@@ -42,7 +42,7 @@ public class UtilsConfiguration {
 
     @Bean
     @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public GithubUtils githubUtils(UserService userService, Cryptographer cryptographer) {
+    public GithubUtils githubUtils(@Autowired UserService userService, @Autowired Cryptographer cryptographer) {
 
         return new GithubUtils(userService, cryptographer);
     }
