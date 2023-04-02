@@ -2,7 +2,7 @@ package org.example.configuration;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
-import org.example.users.UserService;
+import org.example.data.accounts.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -19,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfiguration {
 
     private static final long CACHE_MAXIMUM_SIZE = 1024;
-    private final UserService userService;
+    private final AccountService accountService;
 
     @Autowired
-    public CacheConfiguration(UserService userService) {
-        this.userService = userService;
+    public CacheConfiguration(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @Bean
@@ -46,9 +46,7 @@ public class CacheConfiguration {
                                             throw new IllegalArgumentException("Account ID can't be null");
 
                                         return switch (name) {
-                                            case "login" -> userService.findLoginById((String)key);
-                                            case "jwt" -> userService.findJwtById((String)key);
-                                            case "oauth" -> userService.findOauthById((String)key);
+                                            case "jwt" -> accountService.findJwtById((String)key);
                                             default -> throw new IllegalArgumentException();
                                         };
                                     }

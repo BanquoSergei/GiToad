@@ -35,6 +35,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                         "/account/registration",
                         "/test/test",
                         "/security/interactionKey"
-                ).pathMatcher(new AntPathMatcher());
+                ).pathMatcher(new AntPathMatcher()).order(1);
+        registry.addInterceptor(new AuthInterceptor(jwtUtil)).addPathPatterns("/**").pathMatcher(new AntPathMatcher()).order(0);
     }
 }

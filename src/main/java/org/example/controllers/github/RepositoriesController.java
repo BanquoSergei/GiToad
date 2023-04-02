@@ -3,13 +3,14 @@ package org.example.controllers.github;
 import org.example.controllers.responses.LogicalStateResponse;
 import org.example.controllers.responses.RepositoriesResponse;
 import org.example.controllers.responses.RepositoryResponse;
-import org.example.github.utils.GithubUtils;
+import org.example.data.github.utils.GithubUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+@CrossOrigin(allowedHeaders = "*", methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true", originPatterns = "*")
 @RestController
 @RequestMapping("repositories")
 public class RepositoriesController {

@@ -3,7 +3,7 @@ package org.example.controllers.github;
 import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.FileResponse;
 import org.example.controllers.responses.LogicalStateResponse;
-import org.example.github.utils.GithubUtils;
+import org.example.data.github.utils.GithubUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -2,8 +2,8 @@ package org.example.configuration;
 
 import org.example.crypt.Cryptographer;
 import org.example.data.SecurityData;
-import org.example.github.utils.GithubUtils;
-import org.example.users.UserService;
+import org.example.data.github.utils.GithubUtils;
+import org.example.data.accounts.AccountService;
 import org.example.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,8 +42,8 @@ public class UtilsConfiguration {
 
     @Bean
     @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public GithubUtils githubUtils(@Autowired UserService userService, @Autowired Cryptographer cryptographer) {
+    public GithubUtils githubUtils(AccountService accountService, Cryptographer cryptographer, JwtUtil jwtUtil) {
 
-        return new GithubUtils(userService, cryptographer);
+        return new GithubUtils(accountService, cryptographer, jwtUtil);
     }
 }
