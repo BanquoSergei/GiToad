@@ -2,11 +2,14 @@ package org.example.controllers;
 
 import org.example.controllers.github.requests.OnlyTokenRequest;
 import org.example.controllers.responses.LogicalStateResponse;
+import org.example.controllers.responses.MySelfResponse;
 import org.example.controllers.responses.RegistrationResponse;
 import org.example.data.github.utils.GithubUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @CrossOrigin(allowedHeaders = "*", methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true", originPatterns = "*")
@@ -23,6 +26,12 @@ public class AccountController {
 
 
         return githubUtils.getAccountUtils().updateData(jwt, request.token());
+    }
+
+    @GetMapping("/myself")
+    public ResponseEntity<MySelfResponse> getMyself() throws IOException {
+
+        return githubUtils.getAccountUtils().getMyself();
     }
 
     @PostMapping("/login")

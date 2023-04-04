@@ -1,9 +1,7 @@
 package org.example.data.github.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.data.github.dto.deserializers.GHContentDTODeserializer;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHContent;
 
@@ -11,7 +9,6 @@ import java.io.IOException;
 
 @Data
 @NoArgsConstructor
-@JsonDeserialize(using = GHContentDTODeserializer.class)
 public class GHContentDTO {
 
     private String name;
@@ -27,6 +24,10 @@ public class GHContentDTO {
     private String encoding;
 
     private long size;
+
+    public static GHContentDTO getInstance() {
+        return new GHContentDTO();
+    }
 
     public GHContentDTO(GHContent file) throws IOException {
 

@@ -1,9 +1,7 @@
 package org.example.data.github.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.data.github.dto.deserializers.ViewCommitDTODeserializer;
 import org.kohsuke.github.GHCommit;
 
 import java.util.Date;
@@ -11,7 +9,6 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@JsonDeserialize(using = ViewCommitDTODeserializer.class)
 public class ViewCommitDTO {
 
     private Date date;

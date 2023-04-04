@@ -40,9 +40,11 @@ public class GithubUtils {
         var id = jwtUtil.extractId(token);
 
         var setupData = accountUtils.setup(id);
+
+
         client = setupData.client();
         filesUtils = new FilesUtils(client);
-        repositoriesUtils = new RepositoriesUtils(setupData.jwt(), client, cryptographer);
+        repositoriesUtils = new RepositoriesUtils(client);
 
         return ResponseEntity.ok(new LogicalStateResponse(true));
     }

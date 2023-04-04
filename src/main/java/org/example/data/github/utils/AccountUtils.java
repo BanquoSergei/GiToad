@@ -3,6 +3,7 @@ package org.example.data.github.utils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.controllers.responses.LogicalStateResponse;
+import org.example.controllers.responses.MySelfResponse;
 import org.example.controllers.responses.RegistrationResponse;
 import org.example.crypt.Cryptographer;
 import org.example.data.accounts.AccountService;
@@ -12,6 +13,7 @@ import org.kohsuke.github.GitHubBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,5 +96,13 @@ public class AccountUtils {
     public ResponseEntity<LogicalStateResponse> exists(String token) {
 
         return ResponseEntity.ok(new LogicalStateResponse(accountService.existsById(jwtUtil.extractId(token))));
+    }
+
+    public ResponseEntity<MySelfResponse> getMyself() throws IOException {
+
+        var myself = client.getMyself();
+        var response = new MySelfResponse(myself.getName(), myself.getAvatarUrl());
+
+        return ResponseEntity.ok(response);
     }
 }

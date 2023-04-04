@@ -1,15 +1,12 @@
 package org.example.data.github.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.example.controllers.clients.HttpClient;
 import org.example.controllers.responses.LogicalStateResponse;
 import org.example.controllers.responses.RepositoriesResponse;
 import org.example.controllers.responses.RepositoryResponse;
-import org.example.crypt.Cryptographer;
+import org.example.data.github.dto.GHContentDTO;
 import org.example.data.github.dto.RepositoryDTO;
-import org.example.data.github.dto.RepositoryNameDTO;
+import org.example.data.github.dto.RepositoryViewDTO;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -22,37 +19,45 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RepositoriesUtils {
 
-    private final byte[] jwt;
     private final GitHub client;
-
-    private final Cryptographer cryptographer;
-    private final static String REPOS_URL = "https://api.github.com/repos/%s/%s";
-
-    private ObjectMapper mapper = new ObjectMapper();
 
     public ResponseEntity<RepositoriesResponse> getAllRepositories() throws IOException {
 
-        var rawResponse = HttpClient.getRawResponseWithAuthentication("https://api.github.com/user/repos", new String(cryptographer.decrypt(jwt)));
-        var listRepositoriesTypeReference = new TypeReference<List<RepositoryNameDTO>>() {};
-        var repositories = mapper.readValue(rawResponse, listRepositoriesTypeReference)
-                .stream()
-                .map(RepositoryNameDTO::getName).toList();
+        var repositories = client.getMyself().getRepositories().values().stream()
+                .map(repo -> new RepositoryViewDTO(
+                  repo.getName(),
+                  repo.getHtmlUrl().toString(),
+                  repo.getDescription(),
+                  repo.isPrivate(),
+                  repo.getLanguage()
+                )).toList();
+
         return ResponseEntity.ok(new RepositoriesResponse(repositories));
     }
 
     public ResponseEntity<RepositoryResponse> getRepository(String repositoryName) throws IOException {
 
-        var rawResponse = HttpClient.getRawResponseWithAuthentication(
-                String.format(
-                        REPOS_URL,
-                        client.getMyself().getLogin(),
-                        repositoryName
-                ),
-                new String(cryptographer.decrypt(jwt)
-                )
+        var repo = client.getMyself().getRepository(repositoryName);
+        var sha = repo.getBranch("master").getSHA1();
+
+        GHContentDTO readme;
+
+        try {
+            readme = new GHContentDTO(repo.getReadme());
+        } catch (IOException e) {
+            readme = GHContentDTO.getInstance();
+        }
+
+        var repoDTO = new RepositoryDTO(
+                repo.getName(),
+                repo.getHtmlUrl().toString(),
+                readme,
+                repo.getDescription(),
+                repo.getBranches().keySet(),
+                repo.listLanguages()
         );
 
-        return ResponseEntity.ok(new RepositoryResponse(mapper.readValue(rawResponse, RepositoryDTO.class)));
+        return ResponseEntity.ok(new RepositoryResponse(repoDTO));
     }
 
     public ResponseEntity<LogicalStateResponse> createRepository(String name,
