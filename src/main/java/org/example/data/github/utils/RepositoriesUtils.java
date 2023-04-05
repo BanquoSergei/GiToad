@@ -24,13 +24,20 @@ public class RepositoriesUtils {
     public ResponseEntity<RepositoriesResponse> getAllRepositories() throws IOException {
 
         var repositories = client.getMyself().getRepositories().values().stream()
-                .map(repo -> new RepositoryViewDTO(
-                  repo.getName(),
-                  repo.getHtmlUrl().toString(),
-                  repo.getDescription(),
-                  repo.isPrivate(),
-                  repo.getLanguage()
-                )).toList();
+                .map(repo -> {
+                    try {
+                        return new RepositoryViewDTO(
+                          repo.getName(),
+                          repo.getHtmlUrl().toString(),
+                          repo.getDescription(),
+                          repo.isPrivate(),
+                          repo.getLanguage(),
+                          repo.getUpdatedAt()
+                        );
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).toList();
 
         return ResponseEntity.ok(new RepositoriesResponse(repositories));
     }
@@ -47,7 +54,6 @@ public class RepositoriesUtils {
         } catch (IOException e) {
             readme = GHContentDTO.getInstance();
         }
-
         var repoDTO = new RepositoryDTO(
                 repo.getName(),
                 repo.getHtmlUrl().toString(),
