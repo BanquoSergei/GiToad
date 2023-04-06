@@ -1,3 +1,2 @@
-application.properties
 db
-*.idea
+/src/main/java/org/example/controllers/TestController.java
