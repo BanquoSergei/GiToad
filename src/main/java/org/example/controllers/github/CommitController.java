@@ -2,7 +2,7 @@ package org.example.controllers.github;
 
 import lombok.RequiredArgsConstructor;
 import org.example.controllers.responses.CommitResponse;
-import org.example.github.utils.GithubUtils;
+import org.example.data.github.utils.GithubUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

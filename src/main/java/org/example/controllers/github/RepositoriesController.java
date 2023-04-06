@@ -1,12 +1,16 @@
 package org.example.controllers.github;
 
+import org.example.controllers.responses.LogicalStateResponse;
+import org.example.controllers.responses.RepositoriesResponse;
 import org.example.controllers.responses.RepositoryResponse;
-import org.example.github.utils.GithubUtils;
+import org.example.data.github.utils.GithubUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+@CrossOrigin(allowedHeaders = "*", methods = {RequestMethod.OPTIONS, RequestMethod.GET, RequestMethod.POST}, allowCredentials = "true", originPatterns = "*")
 @RestController
 @RequestMapping("repositories")
 public class RepositoriesController {
@@ -15,19 +19,19 @@ public class RepositoriesController {
     private GithubUtils githubUtils;
 
     @GetMapping("/all")
-    public RepositoryResponse getRepositories() throws IOException {
+    public ResponseEntity<RepositoriesResponse> getRepositories() throws IOException {
 
         return githubUtils.getRepositoriesUtils().getAllRepositories();
     }
 
     @GetMapping("/get")
-    public RepositoryResponse getRepository(@RequestParam("name") String repositoryName) throws IOException {
+    public ResponseEntity<RepositoryResponse> getRepository(@RequestParam("name") String repositoryName) throws IOException {
 
         return githubUtils.getRepositoriesUtils().getRepository(repositoryName);
     }
 
     @PutMapping("/create")
-    public RepositoryResponse createRepository(
+    public ResponseEntity<LogicalStateResponse>  createRepository(
             @RequestParam String name,
             @RequestParam(required = false) String description,
             @RequestParam(required = false) String homepage,
@@ -46,14 +50,14 @@ public class RepositoriesController {
     }
 
     @GetMapping("/collaborators/add")
-    public RepositoryResponse getRepository(@PathVariable String repositoryName,
+    public ResponseEntity<LogicalStateResponse> addCollaborators(@PathVariable String repositoryName,
                                             @ModelAttribute UserPermissionMapWrapper collaborators) throws IOException {
 
         return githubUtils.getRepositoriesUtils().addCollaboratorsToRepository(repositoryName, collaborators.getTags());
     }
 
-    @PostMapping("/setup/{name}")
-    public RepositoryResponse setup(@PathVariable("name") String repositoryName,
+    @PostMapping("/setup")
+    public ResponseEntity<LogicalStateResponse> setup(@RequestParam("repositoryName") String repositoryName,
                                     @RequestParam(required = false) String renameTo,
                                     @RequestParam(required = false) String homeUrl,
                                     @RequestParam(required = false) String emailHook,

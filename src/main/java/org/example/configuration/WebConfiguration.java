@@ -1,14 +1,13 @@
 package org.example.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.example.data.SecurityData;
 import org.example.interceptors.AuthInterceptor;
 import org.example.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 public class WebConfiguration implements WebMvcConfigurer {
-    private final SecurityData data;
     private final JwtUtil jwtUtil;
 
     @Bean
@@ -31,11 +29,13 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthInterceptor(jwtUtil)).excludePathPatterns()
-                .addPathPatterns(
+        registry.addInterceptor(new AuthInterceptor(jwtUtil)).addPathPatterns("/**")
+                .excludePathPatterns(
                         "/account/login",
-                        "/account/exists",
+                        "/account/registration",
+                        "/test/test",
                         "/security/interactionKey"
-                );
+                ).pathMatcher(new AntPathMatcher()).order(1);
+        registry.addInterceptor(new AuthInterceptor(jwtUtil)).addPathPatterns("/**").pathMatcher(new AntPathMatcher()).order(0);
     }
 }

@@ -16,8 +16,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        var token = request.getHeader("Auth-token");
+        if(request.getMethod().equals("OPTIONS"))
+            return true;
 
+        var token = request.getHeader("Auth-token");
         boolean valid = jwtUtil.validateToken(token);
         if (!valid)
             response.setStatus(HttpStatus.UNAUTHORIZED.value());

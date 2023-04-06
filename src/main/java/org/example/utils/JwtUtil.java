@@ -3,12 +3,11 @@ package org.example.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
-import java.util.Base64;
 import java.util.Date;
 
 public class JwtUtil {
 
-    private final byte[] secret;
+    private byte[] secret;
 
     public JwtUtil(String secret) {
         this.secret = secret.getBytes();
@@ -20,14 +19,28 @@ public class JwtUtil {
                 .parseClaimsJws(authToken).getBody();
     }
 
-    public boolean validateToken(String authToken) {
+    public boolean validateToken(String token) {
 
-        return authToken != null
-                && getClaimsFromToken(authToken)
-                .getExpiration().before(new Date());
+        if(token == null || token.length() <= 7)
+            return false;
+
+        token = token.substring(7);
+
+        return getClaimsFromToken(token)
+                .getExpiration().after(new Date());
     }
 
     public String extractId(String token) {
+
+        if(token == null || token.length() <= 7)
+            throw new IllegalArgumentException("Token must be longer");
+
+        token = token.substring(7);
+
         return getClaimsFromToken(token).get("id").toString();
+    }
+
+    public void setKey(byte[] key) {
+        secret = key;
     }
 }
