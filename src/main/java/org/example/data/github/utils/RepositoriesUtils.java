@@ -28,9 +28,11 @@ public class RepositoriesUtils {
                     try {
                         return new RepositoryViewDTO(
                           repo.getName(),
-                          repo.getHtmlUrl().toString(),
                           repo.getDescription(),
                           repo.isPrivate(),
+                          repo.isFork(),
+                          repo.isArchived(),
+                          repo.isTemplate(),
                           repo.getLanguage(),
                           repo.getUpdatedAt()
                         );
