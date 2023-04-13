@@ -1,8 +1,8 @@
 package org.example.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.example.interceptors.AuthInterceptor;
-import org.example.utils.JwtUtil;
+import org.example.request_processing.interceptors.AuthInterceptor;
+import org.example.utils.jwt.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
