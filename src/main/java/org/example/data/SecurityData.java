@@ -1,9 +1,9 @@
 package org.example.data;
 
 import lombok.Data;
-import org.example.crypt.Cryptographer;
-import org.example.exceptions.InvalidInteractionKeyException;
-import org.example.utils.JwtUtil;
+import org.example.utils.crypt.Cryptographer;
+import org.example.request_processing.exceptions.InvalidInteractionKeyException;
+import org.example.utils.jwt.JwtUtil;
 
 @Data
 public class SecurityData {

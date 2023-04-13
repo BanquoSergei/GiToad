@@ -1,10 +1,10 @@
 package org.example.configuration;
 
-import org.example.crypt.Cryptographer;
+import org.example.utils.crypt.Cryptographer;
 import org.example.data.SecurityData;
-import org.example.data.github.utils.GithubUtils;
+import org.example.utils.github.GithubUtils;
 import org.example.data.accounts.AccountService;
-import org.example.utils.JwtUtil;
+import org.example.utils.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
