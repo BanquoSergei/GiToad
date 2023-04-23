@@ -2,6 +2,7 @@ package org.example.utils.github;
 
 import lombok.RequiredArgsConstructor;
 import org.example.data.dto.views.FileViewDTO;
+import org.example.data.dto.views.ViewCommitDTO;
 import org.example.request_processing.clients.GitoadHttpClient;
 import org.example.request_processing.requests.CreateRepositoryRequest;
 import org.example.request_processing.responses.LogicalStateResponse;
@@ -10,6 +11,7 @@ import org.example.request_processing.responses.RepositoryResponse;
 import org.example.data.dto.FileDTO;
 import org.example.data.dto.RepositoryDTO;
 import org.example.data.dto.views.RepositoryViewDTO;
+import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -51,10 +53,9 @@ public class RepositoriesUtils {
 
         var repo = client.getMyself().getRepository(repositoryName);
 
-
         var currentBranch = branch == null ? repo.getDefaultBranch() : branch;
         var files = GitoadHttpClient.getFiles(client.getMyself().getLogin(), repositoryName, currentBranch);
-        var lastCommitSha = repo.getBranch(currentBranch).getSHA1();
+
         FileDTO readme;
 
         try {
@@ -63,17 +64,37 @@ public class RepositoriesUtils {
         } catch (IOException e) {
             readme = null;
         }
+        var commits = repo.queryCommits().from(branch).list()
+                .toList().stream()
+                .map(commit -> {
+                    try {
+                        return new ViewCommitDTO(
+                                commit.getCommitDate(),
+                                commit.getCommitShortInfo().getMessage(),
+                                commit.getSHA1(),
+                                commit.getHtmlUrl().toString()
+                        );
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+
         var repoDTO = new RepositoryDTO(
                 repo.getName(),
                 repo.getHtmlUrl().toString(),
+                repo.getOwnerName(),
                 readme,
                 repo.getDescription(),
                 repo.getBranches().keySet(),
+                currentBranch,
+                commits,
                 repo.listLanguages(),
                 files
         );
 
-        return ResponseEntity.ok(new RepositoryResponse(repoDTO, currentBranch));
+        return ResponseEntity.ok(new RepositoryResponse(repoDTO));
     }
 
     public ResponseEntity<LogicalStateResponse> createRepository(CreateRepositoryRequest repositoryInfo) throws IOException {

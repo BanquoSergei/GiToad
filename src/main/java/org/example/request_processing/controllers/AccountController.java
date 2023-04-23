@@ -24,7 +24,6 @@ public class AccountController {
     @PostMapping("/registration")
     public ResponseEntity<RegistrationResponse> updateAccountData(@RequestBody OnlyTokenRequest request, @RequestHeader("Authorization") String jwt) {
 
-
         return githubUtils.getAccountUtils().updateData(jwt, request.token());
     }
 

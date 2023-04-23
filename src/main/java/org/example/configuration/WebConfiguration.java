@@ -29,13 +29,15 @@ public class WebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
         registry.addInterceptor(new AuthInterceptor(jwtUtil)).addPathPatterns("/**")
                 .excludePathPatterns(
+                        "/error",
                         "/account/login",
+                        "/account/exists",
                         "/account/registration",
                         "/test/test",
                         "/security/interactionKey"
                 ).pathMatcher(new AntPathMatcher()).order(1);
-        registry.addInterceptor(new AuthInterceptor(jwtUtil)).addPathPatterns("/**").pathMatcher(new AntPathMatcher()).order(0);
     }
 }

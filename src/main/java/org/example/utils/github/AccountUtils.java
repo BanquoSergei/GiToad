@@ -31,8 +31,7 @@ public class AccountUtils {
     GitHub loginByJwt(byte[] jwt) {
 
         return client = new GitHubBuilder()
-                .withJwtToken(decrypt(jwt))
-                .build();
+                .withPassword(decrypt(jwt), decrypt(jwt)).build();
 
     }
 

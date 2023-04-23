@@ -48,4 +48,8 @@ public class GithubUtils {
 
         return ResponseEntity.ok(new LogicalStateResponse(true));
     }
+
+    public boolean initialized() {
+        return client != null;
+    }
 }
