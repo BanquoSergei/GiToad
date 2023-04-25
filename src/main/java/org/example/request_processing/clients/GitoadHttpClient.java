@@ -10,8 +10,6 @@ public class GitoadHttpClient {
 
     private static final String FILES = "https://api.github.com/repos/%s/%s/git/trees/%s?recursive=0";
 
-    private static final String COMMITS_AMOUNT = "https://api.github.com/repos/%s/%s/commits?sha=%s";
-
     private static final RestTemplate client = new RestTemplate();
 
     public static List<FileViewDTO> getFiles(String login, String repo, String branch) {

@@ -6,16 +6,15 @@ import org.example.utils.jwt.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-
 @RequiredArgsConstructor
 @Configuration
-@EnableWebMvc
+@EnableWebSecurity
 public class WebConfiguration implements WebMvcConfigurer {
     private final JwtUtil jwtUtil;
 

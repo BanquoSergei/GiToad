@@ -1,9 +1,9 @@
 package org.example;
 
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.PropertySource;
@@ -21,7 +21,9 @@ import java.io.IOException;
 public class GiToadApplication {
     public static void main(String[] args) throws IOException {
 
-        SpringApplication.run(GiToadApplication.class, args);
+        var app = new SpringApplicationBuilder(GiToadApplication.class)
+                .web(WebApplicationType.SERVLET);
+        app.run(args);
 
     }
 }
