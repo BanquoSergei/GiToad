@@ -1,3 +1,3 @@
 all:
-	sudo docker build --tag gitoad .
-	sudo docker run gitoad
+	docker build --tag gitoad .
+	docker run gitoad
