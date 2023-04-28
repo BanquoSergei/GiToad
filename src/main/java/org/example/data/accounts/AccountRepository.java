@@ -12,7 +12,7 @@ public interface AccountRepository extends JpaRepository<Account, String>, CrudR
 
     @Query("select acc.jwt " +
             "from Account acc where acc.id = :id")
-    byte[] findJwtById(@Param("id")String id);
+    byte[] findJwtById(@Param("id") String id);
 
 
     @Modifying

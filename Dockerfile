@@ -11,9 +11,6 @@ COPY --from=maven:3.9.1-eclipse-temurin-11 ${MAVEN_HOME} ${MAVEN_HOME}
 COPY --from=maven:3.9.1-eclipse-temurin-11 /usr/local/bin/mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
 COPY --from=maven:3.9.1-eclipse-temurin-11 /usr/share/maven/ref/settings-docker.xml /usr/share/maven/ref/settings-docker.xml
 
-
-EXPOSE 5001:5001
-
 ENV CRYPTO_ALGORITHM_CIPHER=${CRYPTO_ALGORITHM_CIPHER}
 ENV CRYPTO_ALGORITHM_KEY=${CRYPTO_ALGORITHM_KEY}
 ENV CRYPTO_KEY=${CRYPTO_KEY}
@@ -39,4 +36,6 @@ WORKDIR .
 
 COPY . .
 
-CMD ["mvn", "clean", "install", "spring-boot:run"]
+EXPOSE 5001
+
+CMD ["mvn", "spring-boot:run"]

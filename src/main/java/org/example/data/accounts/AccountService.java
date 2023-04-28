@@ -11,7 +11,7 @@ public class AccountService {
 
     private final AccountRepository repository;
 
-    @Cacheable("jwt")
+    @Cacheable(value = "jwt", unless = "#result == null")
     @Transactional
     public byte[] findJwtById(String id) {
         return repository.findJwtById(id);

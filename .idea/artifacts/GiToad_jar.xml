@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="GiToad:jar">
+  <artifact type="jar" build-on-make="true" name="GiToad:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/GiToad_jar</output-path>
     <root id="archive" name="GiToad.jar">
       <element id="module-output" name="GiToad" />

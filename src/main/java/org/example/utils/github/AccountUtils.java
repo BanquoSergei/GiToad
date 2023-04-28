@@ -86,7 +86,16 @@ public class AccountUtils {
 
     SetupData setup(String id) {
 
-        var jwt = accountService.findJwtById(id);
+
+        byte[] jwt = new byte[0];
+        try {
+            jwt = accountService.findJwtById(id);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+
+        }
+
+
         client = loginByJwt(jwt);
 
         return new SetupData(jwt, client);

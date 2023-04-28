@@ -43,15 +43,15 @@ public class CacheConfiguration {
                                     public Object load(Object key) {
 
                                         if(key == null)
-                                            throw new IllegalArgumentException("Account ID can't be null");
+                                            return null;
 
                                         return switch (name) {
                                             case "jwt" -> accountService.findJwtById((String)key);
-                                            default -> throw new IllegalArgumentException();
+                                            default -> null;
                                         };
                                     }
                                 }).asMap(),
-                        false
+                        true
                 );
             }
         };
