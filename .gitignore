@@ -2,3 +2,5 @@ application.properties
 db
 /src/main/java/org/example/request_processing/controllers/TestController.java
 *.env
+.env
+postgres.env
