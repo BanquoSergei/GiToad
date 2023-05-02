@@ -41,10 +41,9 @@ public class GithubUtils {
 
         var setupData = accountUtils.setup(id);
 
-
         client = setupData.client();
         filesUtils = new FilesUtils(client);
-        repositoriesUtils = new RepositoriesUtils(client);
+        repositoriesUtils = new RepositoriesUtils(client, cryptographer, setupData.jwt());
 
         return ResponseEntity.ok(new LogicalStateResponse(true));
     }

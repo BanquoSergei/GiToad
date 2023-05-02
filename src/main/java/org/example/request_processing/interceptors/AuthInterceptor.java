@@ -17,13 +17,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-	System.out.println(request.getSession().getId());
-
         if(request.getMethod().equals("OPTIONS") || request.getRequestURI().equals("/error"))
             return true;
 
         var token = request.getHeader("Authorization");
-      	        request.getSession().getAttributeNames().asIterator().forEachRemaining(System.out::println);
 
 	GithubUtils githubUtils = (GithubUtils) request.getSession().getAttribute("scopedTarget.githubUtils");
         boolean valid = jwtUtil.validateToken(token);

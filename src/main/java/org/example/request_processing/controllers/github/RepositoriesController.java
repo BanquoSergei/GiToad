@@ -27,7 +27,8 @@ public class RepositoriesController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<RepositoryResponse> getRepository(@RequestParam("name") String repositoryName, @RequestParam(required = false) String branch) throws IOException {
+    public ResponseEntity<RepositoryResponse> getRepository(@RequestParam("name") String repositoryName,
+                                                            @RequestParam(required = false) String branch) throws IOException {
 
         return githubUtils.getRepositoriesUtils().getRepository(repositoryName, branch);
     }

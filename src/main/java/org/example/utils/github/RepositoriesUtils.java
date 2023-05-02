@@ -1,7 +1,5 @@
 package org.example.utils.github;
 
-import lombok.RequiredArgsConstructor;
-import org.example.data.dto.views.FileViewDTO;
 import org.example.data.dto.views.ViewCommitDTO;
 import org.example.request_processing.clients.GitoadHttpClient;
 import org.example.request_processing.requests.CreateRepositoryRequest;
@@ -11,7 +9,7 @@ import org.example.request_processing.responses.RepositoryResponse;
 import org.example.data.dto.FileDTO;
 import org.example.data.dto.RepositoryDTO;
 import org.example.data.dto.views.RepositoryViewDTO;
-import org.kohsuke.github.GHCommit;
+import org.example.utils.crypt.Cryptographer;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
@@ -21,10 +19,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class RepositoriesUtils {
 
     private final GitHub client;
+
+    private final GitoadHttpClient httpClient;
+
+    public RepositoriesUtils(GitHub client, Cryptographer cryptographer, byte[] jwt) {
+        this.client = client;
+        httpClient = new GitoadHttpClient(cryptographer, jwt);
+    }
 
     public ResponseEntity<RepositoriesResponse> getAllRepositories() throws IOException {
 
@@ -54,7 +58,7 @@ public class RepositoriesUtils {
         var repo = client.getMyself().getRepository(repositoryName);
 
         var currentBranch = branch == null ? repo.getDefaultBranch() : branch;
-        var files = GitoadHttpClient.getFiles(client.getMyself().getLogin(), repositoryName, currentBranch);
+        var files = httpClient.getFiles(client.getMyself().getLogin(), repositoryName, currentBranch);
 
         FileDTO readme;
 
