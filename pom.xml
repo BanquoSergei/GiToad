@@ -12,6 +12,9 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-version>6.0.3</spring-version>
+        <jwt-api-version>0.11.5</jwt-api-version>
+        <spring-boot-version>3.0.6</spring-boot-version>
     </properties>
 
     <dependencies>
@@ -34,7 +37,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>3.0.6</version>
+            <version>${spring-boot-version}</version>
         </dependency>
 
 
@@ -50,14 +53,14 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
+            <version>${jwt-api-version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
+            <version>${jwt-api-version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -73,7 +76,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>3.0.6</version>
+            <version>${spring-boot-version}</version>
         </dependency>
 
 
@@ -112,7 +115,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
-            <version>3.0.6</version>
+            <version>${spring-boot-version}</version>
         </dependency>
 
 
@@ -120,7 +123,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>6.0.3</version>
+            <version>${spring-version}</version>
         </dependency>
 
 
@@ -128,7 +131,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>6.0.3</version>
+            <version>${spring-version}</version>
         </dependency>
 
 
@@ -254,7 +257,7 @@
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
-                <version>0.11.5</version>
+                <version>${jwt-api-version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
@@ -273,7 +276,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.0.6</version>
+                <version>${spring-boot-version}</version>
                 <configuration>
                     <skip>false</skip>
                 </configuration>

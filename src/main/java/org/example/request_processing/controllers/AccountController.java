@@ -20,7 +20,6 @@ public class AccountController {
     @Autowired
     private GithubUtils githubUtils;
 
-
     @PostMapping("/registration")
     public ResponseEntity<RegistrationResponse> updateAccountData(@RequestBody OnlyTokenRequest request, @RequestHeader("Authorization") String jwt) {
 

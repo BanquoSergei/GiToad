@@ -21,6 +21,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
 
         var token = request.getHeader("Authorization");
+//        request.getSession().id4
         GithubUtils githubUtils = (GithubUtils) request.getSession().getAttribute("scopedTarget.githubUtils");
         boolean valid = jwtUtil.validateToken(token);
         if (!valid || !request.getRequestURI().equals("/account/login") && githubUtils == null) {

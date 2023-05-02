@@ -2,16 +2,15 @@ package org.example.utils.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Date;
 
+@AllArgsConstructor
 public class JwtUtil {
 
     private byte[] secret;
-
-    public JwtUtil(String secret) {
-        this.secret = secret.getBytes();
-    }
 
     private Claims getClaimsFromToken(String authToken) {
 

@@ -37,7 +37,7 @@ public class UtilsConfiguration {
     @Scope("singleton")
     public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret) {
 
-        return new JwtUtil(secret);
+        return new JwtUtil(secret.getBytes());
     }
 
     @Bean
