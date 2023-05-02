@@ -17,18 +17,22 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
+	System.out.println(request.getSession().getId());
+
         if(request.getMethod().equals("OPTIONS") || request.getRequestURI().equals("/error"))
             return true;
 
         var token = request.getHeader("Authorization");
-        GithubUtils githubUtils = (GithubUtils) request.getSession().getAttribute("scopedTarget.githubUtils");
+      	        request.getSession().getAttributeNames().asIterator().forEachRemaining(System.out::println);
+
+	GithubUtils githubUtils = (GithubUtils) request.getSession().getAttribute("scopedTarget.githubUtils");
         boolean valid = jwtUtil.validateToken(token);
         if (!valid || !request.getRequestURI().equals("/account/login") && githubUtils == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
             if(!valid)
                 response.setHeader("Expired", "true");
-
+	
             return false;
         }
 

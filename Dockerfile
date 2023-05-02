@@ -37,5 +37,6 @@ WORKDIR .
 COPY . .
 
 EXPOSE 5001
+EXPOSE 5432
 
 CMD ["mvn", "spring-boot:run"]
