@@ -1,6 +1,7 @@
 package org.example.request_processing.controllers.github;
 
 import org.example.request_processing.requests.CreateRepositoryRequest;
+import org.example.request_processing.responses.CreateRepositoryResponse;
 import org.example.request_processing.responses.LogicalStateResponse;
 import org.example.request_processing.responses.RepositoriesResponse;
 import org.example.request_processing.responses.RepositoryResponse;
@@ -28,13 +29,15 @@ public class RepositoriesController {
 
     @GetMapping("/get")
     public ResponseEntity<RepositoryResponse> getRepository(@RequestParam("name") String repositoryName,
-                                                            @RequestParam(required = false) String branch) throws IOException {
+                                                            @RequestParam(required = false) String branch,
+                                                            @RequestParam(required = false) String sha
+                                                            ) throws IOException {
 
-        return githubUtils.getRepositoriesUtils().getRepository(repositoryName, branch);
+        return githubUtils.getRepositoriesUtils().getRepository(repositoryName, branch, sha);
     }
 
-    @PutMapping("/create")
-    public ResponseEntity<LogicalStateResponse>  createRepository(
+    @PostMapping("/create")
+    public ResponseEntity<CreateRepositoryResponse>  createRepository(
             @RequestBody CreateRepositoryRequest repositoryInfo
             ) throws IOException {
 

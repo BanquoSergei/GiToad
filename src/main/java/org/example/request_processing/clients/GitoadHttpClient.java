@@ -2,12 +2,17 @@ package org.example.request_processing.clients;
 
 import org.example.data.dto.views.FileViewDTO;
 import org.example.utils.crypt.Cryptographer;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHTreeEntry;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,19 +39,37 @@ public class GitoadHttpClient {
                 HttpMethod.GET,
                 URI.create(String.format(FILES, login, repo, branch))
         );
-        var response = client.exchange(request, TreeResponse.class);
 
-        if(response.getStatusCode().isError())
-            throw new IllegalArgumentException();  // TO DO
 
-        var files = response.getBody().tree().stream()
-                .filter(r -> r.get("type").equals("blob"))
-                .map(r -> new FileViewDTO((String) r.get("path"), (String) r.get("sha"), true))
-                .toList();
+        try {
+            var response = client.exchange(request, TreeResponse.class);
 
-        return files;
+            if(response.getStatusCode().isError())
+                throw new IllegalArgumentException();  // TO DO
+            var files = response.getBody().tree().stream()
+                    .filter(r -> r.get("type").equals("blob"))
+                    .map(r -> new FileViewDTO((String) r.get("path"), (String) r.get("sha"), true))
+                    .toList();
+
+            return files;
+        } catch (HttpClientErrorException e) {
+            return Collections.emptyList();
+        }
     }
 
+    public List<FileViewDTO> getFiles(GHRepository repo, String sha) {
+        try {
+
+            var files = repo.getTree(sha).getTree().stream()
+                    .filter(r -> r.getType().equals("blob"))
+                    .map(r -> new FileViewDTO(r.getPath(), r.getSha(), true))
+                    .toList();
+
+            return files;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }
 
 record TreeResponse(String sha, String url, List<Map> tree, boolean truncated) {

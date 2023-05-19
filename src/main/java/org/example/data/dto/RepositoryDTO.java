@@ -14,9 +14,7 @@ public record RepositoryDTO(
         FileDTO readme,
         String description,
         Set<String> branches,
-
         String currentBranch,
-
         List<ViewCommitDTO> commits,
         Map<String, Long> languages,
         List<FileViewDTO> files) {
