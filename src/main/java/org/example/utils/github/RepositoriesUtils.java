@@ -1,30 +1,36 @@
 package org.example.utils.github;
 
-import lombok.RequiredArgsConstructor;
 import org.example.data.dto.views.FileViewDTO;
 import org.example.data.dto.views.ViewCommitDTO;
 import org.example.request_processing.clients.GitoadHttpClient;
 import org.example.request_processing.requests.CreateRepositoryRequest;
+import org.example.request_processing.responses.CreateRepositoryResponse;
 import org.example.request_processing.responses.LogicalStateResponse;
 import org.example.request_processing.responses.RepositoriesResponse;
 import org.example.request_processing.responses.RepositoryResponse;
 import org.example.data.dto.FileDTO;
 import org.example.data.dto.RepositoryDTO;
 import org.example.data.dto.views.RepositoryViewDTO;
-import org.kohsuke.github.GHCommit;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHUser;
-import org.kohsuke.github.GitHub;
+import org.example.utils.crypt.Cryptographer;
+import org.jetbrains.annotations.NotNull;
+import org.kohsuke.github.*;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class RepositoriesUtils {
 
     private final GitHub client;
+
+    private final GitoadHttpClient httpClient;
+
+    public RepositoriesUtils(GitHub client, Cryptographer cryptographer, byte[] jwt) {
+        this.client = client;
+        httpClient = new GitoadHttpClient(cryptographer, jwt);
+    }
 
     public ResponseEntity<RepositoriesResponse> getAllRepositories() throws IOException {
 
@@ -49,12 +55,19 @@ public class RepositoriesUtils {
         return ResponseEntity.ok(new RepositoriesResponse(repositories));
     }
 
-    public ResponseEntity<RepositoryResponse> getRepository(String repositoryName, String branch) throws IOException {
+    public ResponseEntity<RepositoryResponse> getRepository(String repositoryName, String branch, String sha) throws IOException {
 
         var repo = client.getMyself().getRepository(repositoryName);
 
         var currentBranch = branch == null ? repo.getDefaultBranch() : branch;
-        var files = GitoadHttpClient.getFiles(client.getMyself().getLogin(), repositoryName, currentBranch);
+
+
+        List<FileViewDTO> files;
+
+        if(sha != null)
+            files = httpClient.getFiles(repo, sha);
+        else
+            files = httpClient.getFiles(client.getMyself().getLogin(), repositoryName, currentBranch);
 
         FileDTO readme;
 
@@ -64,21 +77,7 @@ public class RepositoriesUtils {
         } catch (IOException e) {
             readme = null;
         }
-        var commits = repo.queryCommits().from(branch).list()
-                .toList().stream()
-                .map(commit -> {
-                    try {
-                        return new ViewCommitDTO(
-                                commit.getCommitDate(),
-                                commit.getCommitShortInfo().getMessage(),
-                                commit.getSHA1(),
-                                commit.getHtmlUrl().toString()
-                        );
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+        List<ViewCommitDTO> commits = getCommits(branch, repo);
 
 
         var repoDTO = new RepositoryDTO(
@@ -97,20 +96,51 @@ public class RepositoriesUtils {
         return ResponseEntity.ok(new RepositoryResponse(repoDTO));
     }
 
-    public ResponseEntity<LogicalStateResponse> createRepository(CreateRepositoryRequest repositoryInfo) throws IOException {
+    @NotNull
+    private static List<ViewCommitDTO> getCommits(String branch, GHRepository repo) throws IOException {
 
-        client.createRepository(repositoryInfo.name().substring(repositoryInfo.name().indexOf('/')))
-                .defaultBranch(repositoryInfo.defaultBranch())
-                .private_(repositoryInfo.isPrivate())
-                .issues(repositoryInfo.issuesEnable())
-                .autoInit(repositoryInfo.autoInit())
-                .description(repositoryInfo.description())
-                .homepage(repositoryInfo.homepage())
-                .downloads(repositoryInfo.downloadsEnable())
-                .isTemplate(repositoryInfo.isTemplate())
-                .create();
+        try {
+            var commits = repo.queryCommits().from(branch).list()
+                    .toList().stream()
+                    .map(commit -> {
+                        try {
+                            return new ViewCommitDTO(
+                                    commit.getCommitDate(),
+                                    commit.getCommitShortInfo().getMessage(),
+                                    commit.getSHA1(),
+                                    commit.getHtmlUrl().toString(),
+                                    commit.getCommitShortInfo().getCommitter() == null ? "Unknown user" : commit.getCommitShortInfo().getCommitter().getUsername()
+                            );
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toList();
 
-        return ResponseEntity.ok(new LogicalStateResponse(true));
+            return commits;
+        } catch (HttpException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public ResponseEntity<CreateRepositoryResponse> createRepository(CreateRepositoryRequest repositoryInfo) throws IOException {
+
+        try {
+            client.createRepository(repositoryInfo.name())
+                    .defaultBranch(repositoryInfo.defaultBranch())
+                    .private_(repositoryInfo.isPrivate())
+                    .issues(repositoryInfo.issuesEnable())
+                    .autoInit(repositoryInfo.autoInit())
+                    .description(repositoryInfo.description())
+                    .homepage(repositoryInfo.homepage())
+                    .downloads(repositoryInfo.downloadsEnable())
+                    .isTemplate(repositoryInfo.isTemplate())
+                    .create();
+        } catch (HttpException e) {
+            return ResponseEntity.ok(new CreateRepositoryResponse(false, List.of(e.getResponseMessage())));
+        }
+
+        return ResponseEntity.ok(new CreateRepositoryResponse(true, Collections.emptyList()));
     }
 
     public ResponseEntity<LogicalStateResponse> addCollaboratorsToRepository(String repositoryName, Map<GHOrganization.RepositoryRole, List<GHUser>> collaborators) throws IOException {

@@ -86,7 +86,6 @@ public class AccountUtils {
 
     SetupData setup(String id) {
 
-
         byte[] jwt = new byte[0];
         try {
             jwt = accountService.findJwtById(id);
@@ -109,7 +108,7 @@ public class AccountUtils {
     public ResponseEntity<MySelfResponse> getMyself() throws IOException {
 
         var myself = client.getMyself();
-        var response = new MySelfResponse(myself.getName(), myself.getLogin(), myself.getAvatarUrl());
+        var response = new MySelfResponse(myself.getName(), myself.getLogin(), myself.getAvatarUrl(), myself.getBio(), myself.getUrl().toString());
 
         return ResponseEntity.ok(response);
     }
