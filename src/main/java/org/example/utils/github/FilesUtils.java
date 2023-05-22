@@ -55,7 +55,7 @@ public class FilesUtils {
     public LogicalStateResponse createCommit(UploadFileDTO file, FileRequest fileInfo) {
 
         try {
-            var repoName = client.getMyself().getLogin() + "/" + fileInfo.repository();
+            var repoName = fileInfo.repository();
             var repository = client.getRepository(repoName);
             var baseTree = repository.getTree(getLastCommit(fileInfo.branch(), repository).sha());
             var tree = repository.createTree().baseTree(baseTree.getSha());
